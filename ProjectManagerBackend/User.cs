@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using ProjectManagerBackend.DtoModels;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -28,9 +29,47 @@ namespace ProjectManagerBackend
         public UserRole Role { get; set; }
         #endregion
 
-        public void AddNewUser()
+        public static void AddNewUser(RegisterUserDto userToRegister)
         {
-            throw new NotImplementedException();
+            //get user roles to map name with id
+            var roles = UserRole.GetAllUserRoles();
+            int userRoleID = roles.FirstOrDefault(role => role.Name == userToRegister.RoleName).ID;
+
+            //process with inserting new user
+            string selectQuery = "select u.user_name,u.user_surname,u.user_login,u.user_password,u.user_role_id " +
+                                "from user as u;";
+            string insert = "insert into user (user_name,user_surname,user_login,user_password,user_role_id)" +
+                                    "values(@name,@surname,@login,@password,@role)";
+
+            var connection = Database.GetConnection();
+            var adapter = new MySqlDataAdapter(selectQuery, connection);
+            var insertCommand = new MySqlCommand(insert, connection);
+
+            adapter.InsertCommand = insertCommand;
+            insertCommand.Parameters.AddWithValue("@name", userToRegister.Name);
+            insertCommand.Parameters.AddWithValue("@surname", userToRegister.Surname);
+            insertCommand.Parameters.AddWithValue("@login", userToRegister.Login);
+            insertCommand.Parameters.AddWithValue("@password", userToRegister.Password);
+            insertCommand.Parameters.AddWithValue("@role", userRoleID);
+
+
+            var dataSet = new DataSet();
+            adapter.Fill(dataSet,"user");
+
+            var newRow = dataSet.Tables["user"].NewRow();
+            newRow["user_name"] = userToRegister.Name;
+            newRow["user_surname"] = userToRegister.Surname;
+            newRow["user_login"] = userToRegister.Login;
+            newRow["user_password"] = userToRegister.Password;
+            newRow["user_role_id"] = userRoleID;
+
+            dataSet.Tables["user"].Rows.Add(newRow);
+            if (dataSet.HasErrors)
+            {
+                dataSet.RejectChanges();
+                throw new Exception("An error has occured during inserting new row");
+            }
+            adapter.Update(dataSet,"user");
         }
         public void ChangeUserRole(string role)
         {
@@ -57,7 +96,6 @@ namespace ProjectManagerBackend
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 adapter.Fill(table);
 
-                //MessageBox.Show(table.Rows[0]["user_login"].ToString());
                 int rows = table.Rows.Count;
                 if (rows > 1)
                     throw new Exception("More than one account created for this login!");
@@ -84,7 +122,7 @@ namespace ProjectManagerBackend
             return userToReturn;
         }
 
-        private bool verifyLoginUnique(string login)
+        public static bool verifyLoginUnique(string login)
         {
             MySqlConnection connection = new MySqlConnection();
             try
@@ -113,7 +151,7 @@ namespace ProjectManagerBackend
                 connection.Close();
             }          
         }
-        private bool verifyPasswordMeetsRules(string password)
+        public static bool verifyPasswordMeetsRules(string password)
         {
             //password needs to be:
             //minimum 8 characters long

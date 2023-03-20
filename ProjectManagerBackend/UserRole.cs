@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,29 @@ namespace ProjectManagerBackend
 
         public static List<UserRole>GetAllUserRoles()
         {
-            throw new NotImplementedException();
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "Select * from user_role";
+
+            var command = new MySqlCommand(query, connection);
+            var reader = command.ExecuteReader();
+
+            List<UserRole> roles = new List<UserRole>();
+            while(reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                roles.Add(new UserRole(id, name));
+            }
+            connection.Close();
+
+            if (roles.Count == 0)
+            {
+                throw new Exception("No user roles found in database");
+            }
+            return roles;
         }
     }
 }

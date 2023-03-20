@@ -26,10 +26,17 @@ namespace ProjectManager
             {
                 user = User.LoginUser(textBoxLogin.Text, textBoxPassword.Text);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("An error has occured: " + ex.Message);
             }
+
+        }
+
+        private void buttonRegister_Click(object sender, EventArgs e)
+        {
+            var registerForm = new Register();
+            registerForm.Show();
             
         }
     }
