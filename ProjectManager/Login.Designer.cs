@@ -60,6 +60,7 @@
             textBoxLogin.Name = "textBoxLogin";
             textBoxLogin.Size = new Size(163, 23);
             textBoxLogin.TabIndex = 2;
+            textBoxLogin.Text = "login1";
             // 
             // textBoxPassword
             // 
@@ -67,6 +68,7 @@
             textBoxPassword.Name = "textBoxPassword";
             textBoxPassword.Size = new Size(163, 23);
             textBoxPassword.TabIndex = 3;
+            textBoxPassword.Text = "Haslo";
             // 
             // buttonLogin
             // 

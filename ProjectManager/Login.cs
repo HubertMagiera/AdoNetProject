@@ -25,6 +25,14 @@ namespace ProjectManager
             try
             {
                 user = User.LoginUser(textBoxLogin.Text, textBoxPassword.Text);
+
+                if (user != null && user.Role.Name == "Manager")
+                {
+                    var project = new ProjectForManager();
+                    project.Show();
+                }
+                this.Close();
+
             }
             catch (Exception ex)
             {
@@ -37,7 +45,7 @@ namespace ProjectManager
         {
             var registerForm = new Register();
             registerForm.Show();
-            
+
         }
     }
 }

@@ -1,8 +1,13 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using ProjectManagerBackend.DtoModels;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Xml.Linq;
 
 namespace ProjectManagerBackend
 {
@@ -26,9 +31,45 @@ namespace ProjectManagerBackend
         public ProjectType Type { get; set; }
         #endregion
 
-        public static List<Project>GetAllProjectsForUser(int userID)
+        public static List<ViewProject>GetAllProjectsForUser(int userID)
         {
-            throw new NotImplementedException();
+            var projectsToReturn = new List<ViewProject>();
+
+            var connection = Database.GetConnection();
+            string query = "Select p.project_id, p.project_name, p.project_description, ps.project_status_name, pt.project_type_name " +
+                            "from project as p " +
+                            "inner join project_status as ps on ps.project_status_id = p.project_status_id " +
+                            "inner join project_type as pt on pt.project_type_id = p.project_type_id " +
+                            "where p.project_creator_id = @id;";
+
+            var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@id", userID);
+
+            var projects = new DataSet();
+            var adapter = new MySqlDataAdapter(command);
+
+            adapter.Fill(projects, "projects");
+
+            for (int i = 0; i <= projects.Tables["projects"].Rows.Count-1; i++)
+            {
+                int id = Convert.ToInt32(projects.Tables["projects"].Rows[i]["project_id"]);
+                string name = projects.Tables["projects"].Rows[i]["project_name"].ToString();
+                string description = projects.Tables["projects"].Rows[i]["project_description"].ToString();
+                string type = projects.Tables["projects"].Rows[i]["project_type_name"].ToString();
+                string status = projects.Tables["projects"].Rows[i]["project_status_name"].ToString();
+
+                var viewProject = new ViewProject(
+                        id,
+                        name,
+                        description,
+                        status,
+                        type
+                        );
+                projectsToReturn.Add(viewProject);
+            }
+            if (projectsToReturn.Count == 0)
+                throw new Exception("This user does not have any projects created.");
+            return projectsToReturn;
         }
         public void ChangeProjectStatus(string status)
         {
