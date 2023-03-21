@@ -137,5 +137,23 @@ namespace ProjectManager
             }
 
         }
+
+        private void buttonMarkAsCompleted_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridViewProjects.SelectedRows.Count == 0)
+                    throw new Exception("Please indicate which project you want to mark as completed.");
+                int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
+                Project.MarkProjectAsCompleted(projectId);
+                radioButtonAll.Checked = true;
+                loadProjectsIntoGridView(radioButtonAll.Text);
+                MessageBox.Show("Project is now marked as completed. You can see it on 'all' projects view");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
     }
 }

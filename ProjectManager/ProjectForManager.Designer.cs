@@ -209,6 +209,7 @@
             buttonMarkAsCompleted.TabIndex = 13;
             buttonMarkAsCompleted.Text = "Mark project as completed";
             buttonMarkAsCompleted.UseVisualStyleBackColor = true;
+            buttonMarkAsCompleted.Click += buttonMarkAsCompleted_Click;
             // 
             // buttonAddTask
             // 

@@ -145,12 +145,14 @@ namespace ProjectManagerBackend
             var projectStatuses = ProjectStatus.GetAllStatuses();
             int projectOnHoldId = projectStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
 
+            #region assigningTaskStatusIDs
             //list of all available task statuses to determine the reqiured id's
             var taskStatuses = TaskStatus.GetAllTaskStatuses();
             int taskOngoingId = taskStatuses.FirstOrDefault(property => property.Name == "Ongoing").Id;
             int taskWaitingForApprovalId = taskStatuses.FirstOrDefault(property => property.Name == "Waiting for approval").Id;
             int taskOnHoldId = taskStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
             int taskNotStartedId = taskStatuses.FirstOrDefault(property => property.Name == "Not started").Id;
+            #endregion
 
             //data set to store project and task data table
             var dataSet = new DataSet();
@@ -204,6 +206,60 @@ namespace ProjectManagerBackend
             }
             //change projects status to on hold
             adapterForProject.Update(dataSet, "project");
+        }
+
+        public static void MarkProjectAsCompleted(int projectId)
+        {
+            string selectProjectQuery = "select * from project as p where p.project_id = @id;";
+            string selectTasksForProject = "select t.task_id, t.task_project_id, t.task_user_assigned_id, t.task_creation_date, t.task_deadline_date, " +
+                                    "t.task_finished_date, t.task_status_id, t.task_description, t.task_priority_id, t.task_name " +
+                                    "from task as t " +
+                                    "where t.task_project_id = @id;";
+            string updateProjectQuery = "update project set project_status_id = @status where project_id = @id";
+
+            var connection = Database.GetConnection();
+            var projectCommand = new MySqlCommand(selectProjectQuery, connection);
+            projectCommand.Parameters.AddWithValue("@id", projectId);
+            var adapter = new MySqlDataAdapter(projectCommand);
+
+            var projectStatuses = ProjectStatus.GetAllStatuses();
+            int projectCompletedId = projectStatuses.FirstOrDefault(property => property.Name == "Completed").Id;
+
+            #region assigningTaskStatusIDs
+            var taskStatuses = TaskStatus.GetAllTaskStatuses();
+            int taskOngoingId = taskStatuses.FirstOrDefault(property => property.Name == "Ongoing").Id;
+            int taskWaitingForApprovalId = taskStatuses.FirstOrDefault(property => property.Name == "Waiting for approval").Id;
+            int taskOnHoldId = taskStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
+            int taskNotStartedId = taskStatuses.FirstOrDefault(property => property.Name == "Not started").Id;
+            #endregion
+
+            var dataSet = new DataSet();
+
+            adapter.Fill(dataSet, "project");
+            adapter.UpdateCommand = new MySqlCommand(updateProjectQuery, connection);
+            adapter.UpdateCommand.Parameters.AddWithValue("@id", projectId);
+            adapter.UpdateCommand.Parameters.AddWithValue("@status", projectCompletedId);
+
+            adapter.SelectCommand = new MySqlCommand(selectTasksForProject, connection);
+            adapter.SelectCommand.Parameters.AddWithValue("@id", projectId);
+
+            adapter.Fill(dataSet, "tasks");
+
+            for (int i = 0; i <= dataSet.Tables["tasks"].Rows.Count - 1; i++)
+            {
+                int taskStatusId = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_status_id"].ToString());
+                if (taskStatusId == taskOngoingId || taskStatusId == taskWaitingForApprovalId || taskStatusId == taskNotStartedId)
+                    throw new Exception("Project can not be marked as completed because some of the tasks are still not closed.");
+            }
+
+            dataSet.Tables["project"].Rows[0]["project_status_id"] = projectCompletedId;
+
+            if (dataSet.HasErrors)
+            {
+                dataSet.RejectChanges();
+                throw new Exception("There were some errors while trying to mark project as completed");
+            }
+            adapter.Update(dataSet, "project");
         }
     }
 }
