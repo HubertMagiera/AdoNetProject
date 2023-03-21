@@ -53,11 +53,14 @@
             // 
             dataGridViewProjects.AllowUserToAddRows = false;
             dataGridViewProjects.AllowUserToDeleteRows = false;
+            dataGridViewProjects.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewProjects.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewProjects.Location = new Point(16, 29);
+            dataGridViewProjects.MultiSelect = false;
             dataGridViewProjects.Name = "dataGridViewProjects";
             dataGridViewProjects.ReadOnly = true;
             dataGridViewProjects.RowTemplate.Height = 25;
+            dataGridViewProjects.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewProjects.Size = new Size(467, 214);
             dataGridViewProjects.TabIndex = 0;
             // 
@@ -121,10 +124,10 @@
             radioButtonOngoing.AutoSize = true;
             radioButtonOngoing.Location = new Point(6, 47);
             radioButtonOngoing.Name = "radioButtonOngoing";
-            radioButtonOngoing.Size = new Size(72, 19);
+            radioButtonOngoing.Size = new Size(83, 19);
             radioButtonOngoing.TabIndex = 7;
             radioButtonOngoing.TabStop = true;
-            radioButtonOngoing.Text = "Ongoing";
+            radioButtonOngoing.Text = "In progress";
             radioButtonOngoing.UseVisualStyleBackColor = true;
             radioButtonOngoing.CheckedChanged += radioButtonOngoing_CheckedChanged;
             // 
@@ -196,6 +199,7 @@
             buttonMoveToOnHold.TabIndex = 12;
             buttonMoveToOnHold.Text = "Move to on hold";
             buttonMoveToOnHold.UseVisualStyleBackColor = true;
+            buttonMoveToOnHold.Click += buttonMoveToOnHold_Click;
             // 
             // buttonMarkAsCompleted
             // 

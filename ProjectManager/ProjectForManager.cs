@@ -14,12 +14,10 @@ namespace ProjectManager
 {
     public partial class ProjectForManager : Form
     {
-        private List<ViewProject> projects = new List<ViewProject>();
         public ProjectForManager()
         {
             InitializeComponent();
             radioButtonAll.Checked = true;
-            projects = Project.GetAllProjectsForUser(Login.user.Id);
             loadProjectsIntoGridView(radioButtonAll.Text);
             dataGridViewProjects.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
         }
@@ -29,6 +27,7 @@ namespace ProjectManager
             {
                 dataGridViewProjects.DataSource = null;
                 dataGridViewProjects.Rows.Clear();
+                var projects = Project.GetAllProjectsForUser(Login.user.Id);
 
                 if (projectStatus != "All")
                 {
@@ -118,6 +117,25 @@ namespace ProjectManager
             AddNewProject newProjectForm = new AddNewProject();
             newProjectForm.Show();
             this.Close();
+        }
+
+        private void buttonMoveToOnHold_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridViewProjects.SelectedRows.Count == 0)
+                    throw new Exception("Please indicate which project you want to move on hold.");
+                int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
+                Project.MoveProjectOnHold(projectId);
+                radioButtonAll.Checked = true;
+                loadProjectsIntoGridView(radioButtonAll.Text);
+                MessageBox.Show("Project is now moved on hold. You can reactivate it at any time.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
         }
     }
 }

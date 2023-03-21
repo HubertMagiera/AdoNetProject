@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,29 @@ namespace ProjectManagerBackend
 
         public static List<TaskStatus>GetAllTaskStatuses()
         {
-            throw new NotImplementedException();
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "Select * from task_status";
+
+            var command = new MySqlCommand(query, connection);
+            var reader = command.ExecuteReader();
+
+            List<TaskStatus> statuses = new List<TaskStatus>();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                statuses.Add(new TaskStatus(id, name));
+            }
+            connection.Close();
+
+            if (statuses.Count == 0)
+            {
+                throw new Exception("No task statuses found in database");
+            }
+            return statuses;
         }
     }
 }
