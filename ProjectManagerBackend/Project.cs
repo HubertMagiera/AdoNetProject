@@ -75,9 +75,55 @@ namespace ProjectManagerBackend
         {
             throw new NotImplementedException();
         }
-        public void AddNewProject()
+        public static void AddNewProject(AddProject projectToBeAdded)
         {
-            throw new NotImplementedException ();
+            //for new projects, status "new" is automatically asigned
+            var statusNew = ProjectStatus.GetAllStatuses().FirstOrDefault(property => property.Name == "New");
+            if (statusNew == null)
+                throw new Exception("Apropriate project status not found in database.");
+            int statusId = statusNew.Id;
+
+            //assigning apropriate project type id based on user choose
+            var projectType = ProjectType.GetAllProjectTypes().FirstOrDefault(property => property.TypeName == projectToBeAdded.TypeName);
+            if (projectType == null)
+                throw new Exception("Apropriate project type not found in database.");
+            int projectTypeId = projectType.Id;
+
+            //process with inserting new project
+            string selectQuery = "select p.project_name, p.project_description, p.project_status_id, p.project_type_id, p.project_creator_id " +
+                                "from project as p;";
+            string insert = "insert into project (project_name,project_description,project_status_id,project_type_id,project_creator_id)" +
+                                    "values(@name,@description,@status,@type,@creator);";
+
+            var connection = Database.GetConnection();
+            var adapter = new MySqlDataAdapter(selectQuery, connection);
+            var insertCommand = new MySqlCommand(insert, connection);
+
+            adapter.InsertCommand = insertCommand;
+            insertCommand.Parameters.AddWithValue("@name", projectToBeAdded.Name);
+            insertCommand.Parameters.AddWithValue("@description", projectToBeAdded.Description);
+            insertCommand.Parameters.AddWithValue("@status", statusId);
+            insertCommand.Parameters.AddWithValue("@type", projectTypeId);
+            insertCommand.Parameters.AddWithValue("@creator", projectToBeAdded.CreatorId);
+
+
+            var dataSet = new DataSet();
+            adapter.Fill(dataSet, "project");
+
+            var newRow = dataSet.Tables["project"].NewRow();
+            newRow["project_name"] = projectToBeAdded.Name;
+            newRow["project_description"] = projectToBeAdded.Description;
+            newRow["project_status_id"] = statusId;
+            newRow["project_type_id"] = projectTypeId;
+            newRow["project_creator_id"] = projectToBeAdded.CreatorId;
+
+            dataSet.Tables["project"].Rows.Add(newRow);
+            if (dataSet.HasErrors)
+            {
+                dataSet.RejectChanges();
+                throw new Exception("An error has occured during inserting new row");
+            }
+            adapter.Update(dataSet, "project");
         }
     }
 }

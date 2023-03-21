@@ -1,4 +1,5 @@
 ﻿using ProjectManagerBackend;
+using ProjectManagerBackend.DtoModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,6 +58,22 @@ namespace ProjectManager
             {
                 if (string.IsNullOrEmpty(textBoxName.Text) || comboBoxProjectTypes.SelectedIndex == -1)
                     throw new Exception("Please provide project name and choose its type.");
+                if (Login.user.Role.Name != "Manager")
+                    throw new Exception("Only managers are allowed to create a new project.");
+                string description = textBoxDescription.Text;
+                if (string.IsNullOrEmpty(description))
+                    description = "";
+                var newProject = new AddProject(textBoxName.Text, 
+                                                description, 
+                                                comboBoxProjectTypes.SelectedItem.ToString(), 
+                                                Login.user.Id
+                                                );
+                Project.AddNewProject(newProject);
+                MessageBox.Show("New project has been successfully added to database. " +
+                                    "You can find it by searching for 'New' projects in projects view panel.");
+                ProjectForManager projectForm = new ProjectForManager();
+                projectForm.Show();
+                this.Close();
             }
             catch(Exception ex)
             {
