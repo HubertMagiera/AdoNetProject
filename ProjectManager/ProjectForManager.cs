@@ -57,6 +57,7 @@ namespace ProjectManager
                 buttonMarkAsCompleted.Enabled = true;
                 buttonMoveToOnHold.Enabled = false;
                 buttonReactivateProject.Enabled = false;
+                buttonManageTasks.Enabled = true;
             }
         }
 
@@ -70,6 +71,7 @@ namespace ProjectManager
                 buttonMarkAsCompleted.Enabled = true;
                 buttonMoveToOnHold.Enabled = true;
                 buttonReactivateProject.Enabled = false;
+                buttonManageTasks.Enabled = true;
             }
         }
 
@@ -83,6 +85,7 @@ namespace ProjectManager
                 buttonMarkAsCompleted.Enabled = false;
                 buttonMoveToOnHold.Enabled = false;
                 buttonReactivateProject.Enabled = false;
+                buttonManageTasks.Enabled = false;
             }
         }
 
@@ -96,6 +99,7 @@ namespace ProjectManager
                 buttonAddNewProject.Enabled = true;
                 buttonMarkAsCompleted.Enabled = false;
                 buttonReactivateProject.Enabled = false;
+                buttonManageTasks.Enabled = false;
             }
         }
 
@@ -109,6 +113,7 @@ namespace ProjectManager
                 buttonMarkAsCompleted.Enabled = false;
                 buttonMoveToOnHold.Enabled = false;
                 buttonReactivateProject.Enabled = true;
+                buttonManageTasks.Enabled = false;
             }
         }
 
@@ -172,6 +177,24 @@ namespace ProjectManager
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void buttonAddTask_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridViewProjects.SelectedRows.Count == 0)
+                    throw new Exception("Please indicate for which project you want to add new task.");
+                int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
+                AddTaskToProject addTaskForm = new AddTaskToProject(projectId);
+                addTaskForm.Show();
+                this.Close();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
         }
     }
 }

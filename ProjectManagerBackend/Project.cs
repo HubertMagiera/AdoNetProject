@@ -72,6 +72,7 @@ namespace ProjectManagerBackend
                 throw new Exception("This user does not have any projects created.");
             return projectsToReturn;
         }
+
         public static void AddNewProject(AddProject projectToBeAdded)
         {
             //for new projects, status "new" is automatically asigned
@@ -343,6 +344,46 @@ namespace ProjectManagerBackend
             }
             //change projects status to on hold
             adapterForProject.Update(dataSet, "project");
+        }
+
+        public static void MoveProjectToInProgress(int projectId)
+        {
+            //method used to mark project as in progress when adding first task to it
+            string selectProjectQuery = "select * from project as p where p.project_id = @id;";
+
+            string selectTasksForProject = "select * from task where task.task_project_id = @id";
+
+            string updateProjectQuery = "update project set project_status_id = @status where project_id = @id";
+
+            var connection = Database.GetConnection();
+            var projectCommand = new MySqlCommand(selectProjectQuery, connection);
+            projectCommand.Parameters.AddWithValue("@id", projectId);
+            var adapter = new MySqlDataAdapter(projectCommand);
+
+            var projectStatuses = ProjectStatus.GetAllStatuses();
+            int projectOngoingId = projectStatuses.FirstOrDefault(property => property.Name == "In progress").Id;
+
+            var dataSet = new DataSet();
+
+            adapter.Fill(dataSet, "project");
+            adapter.UpdateCommand = new MySqlCommand(updateProjectQuery, connection);
+            adapter.UpdateCommand.Parameters.AddWithValue("@id", projectId);
+            adapter.UpdateCommand.Parameters.AddWithValue("@status", projectOngoingId);
+
+            adapter.SelectCommand = new MySqlCommand(selectTasksForProject, connection);
+            adapter.SelectCommand.Parameters.AddWithValue("@id", projectId);
+            adapter.Fill(dataSet, "tasks");
+            if (dataSet.Tables["tasks"].Rows.Count != 1)
+                return;
+
+            dataSet.Tables["project"].Rows[0]["project_status_id"] = projectOngoingId;
+
+            if (dataSet.HasErrors)
+            {
+                dataSet.RejectChanges();
+                throw new Exception("There were some errors while trying to mark project as in progress");
+            }
+            adapter.Update(dataSet, "project");
         }
     }
 }

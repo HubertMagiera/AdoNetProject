@@ -41,6 +41,7 @@
             buttonMarkAsCompleted = new Button();
             buttonAddTask = new Button();
             buttonReactivateProject = new Button();
+            buttonManageTasks = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridViewProjects).BeginInit();
             groupBoxRadioButtons.SuspendLayout();
             SuspendLayout();
@@ -65,9 +66,9 @@
             label1.AutoSize = true;
             label1.Location = new Point(16, 11);
             label1.Name = "label1";
-            label1.Size = new Size(215, 15);
+            label1.Size = new Size(49, 15);
             label1.TabIndex = 1;
-            label1.Text = "Projects (double click to see the details)";
+            label1.Text = "Projects";
             // 
             // radioButtonNew
             // 
@@ -165,9 +166,9 @@
             // 
             // buttonMarkAsCompleted
             // 
-            buttonMarkAsCompleted.Location = new Point(289, 361);
+            buttonMarkAsCompleted.Location = new Point(388, 256);
             buttonMarkAsCompleted.Name = "buttonMarkAsCompleted";
-            buttonMarkAsCompleted.Size = new Size(192, 42);
+            buttonMarkAsCompleted.Size = new Size(93, 48);
             buttonMarkAsCompleted.TabIndex = 13;
             buttonMarkAsCompleted.Text = "Mark project as completed";
             buttonMarkAsCompleted.UseVisualStyleBackColor = true;
@@ -175,12 +176,13 @@
             // 
             // buttonAddTask
             // 
-            buttonAddTask.Location = new Point(388, 256);
+            buttonAddTask.Location = new Point(289, 361);
             buttonAddTask.Name = "buttonAddTask";
             buttonAddTask.Size = new Size(93, 48);
             buttonAddTask.TabIndex = 14;
             buttonAddTask.Text = "Add new task to project";
             buttonAddTask.UseVisualStyleBackColor = true;
+            buttonAddTask.Click += buttonAddTask_Click;
             // 
             // buttonReactivateProject
             // 
@@ -192,11 +194,21 @@
             buttonReactivateProject.UseVisualStyleBackColor = true;
             buttonReactivateProject.Click += buttonReactivateProject_Click;
             // 
+            // buttonManageTasks
+            // 
+            buttonManageTasks.Location = new Point(388, 361);
+            buttonManageTasks.Name = "buttonManageTasks";
+            buttonManageTasks.Size = new Size(93, 48);
+            buttonManageTasks.TabIndex = 16;
+            buttonManageTasks.Text = "Manage tasks in project";
+            buttonManageTasks.UseVisualStyleBackColor = true;
+            // 
             // ProjectForManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(520, 415);
+            Controls.Add(buttonManageTasks);
             Controls.Add(buttonReactivateProject);
             Controls.Add(buttonAddTask);
             Controls.Add(buttonMarkAsCompleted);
@@ -229,5 +241,6 @@
         private Button buttonMarkAsCompleted;
         private Button buttonAddTask;
         private Button buttonReactivateProject;
+        private Button buttonManageTasks;
     }
 }

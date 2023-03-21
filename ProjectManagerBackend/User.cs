@@ -71,9 +71,35 @@ namespace ProjectManagerBackend
             }
             adapter.Update(dataSet,"user");
         }
-        public void ChangeUserRole(string role)
+        public static List<ViewUser> GetAllEmployees()
         {
-            throw new NotImplementedException ();
+            //returns all users with employee role
+
+            List<ViewUser> employeesToReturn = new List<ViewUser>();
+            var roles = UserRole.GetAllUserRoles();
+            int employeeRoleId = roles.FirstOrDefault(property => property.Name == "Employee").ID;
+
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "select u.user_id, u.user_name, u.user_surname " +
+                            "from user as u " +
+                            "where u.user_role_id = @roleId;";
+            var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@roleId", employeeRoleId);
+
+            var reader = command.ExecuteReader();
+            while(reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+                string surname = reader.GetString(2);
+
+                employeesToReturn.Add(new ViewUser(id,name,surname));
+            }
+            connection.Close();
+            return employeesToReturn;
+
         }
 
         public static User LoginUser(string login, string password)
