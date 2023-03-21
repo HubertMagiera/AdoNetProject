@@ -155,5 +155,23 @@ namespace ProjectManager
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void buttonReactivateProject_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridViewProjects.SelectedRows.Count == 0)
+                    throw new Exception("Please indicate which project you want to reactivate.");
+                int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
+                Project.ReactivateProject(projectId);
+                radioButtonAll.Checked = true;
+                loadProjectsIntoGridView(radioButtonAll.Text);
+                MessageBox.Show("Project is now reactivated.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
     }
 }

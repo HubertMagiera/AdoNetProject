@@ -30,10 +30,6 @@
         {
             dataGridViewProjects = new DataGridView();
             label1 = new Label();
-            label2 = new Label();
-            label3 = new Label();
-            comboBox1 = new ComboBox();
-            comboBox2 = new ComboBox();
             radioButtonNew = new RadioButton();
             radioButtonOngoing = new RadioButton();
             radioButtonCompleted = new RadioButton();
@@ -61,7 +57,7 @@
             dataGridViewProjects.ReadOnly = true;
             dataGridViewProjects.RowTemplate.Height = 25;
             dataGridViewProjects.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewProjects.Size = new Size(467, 214);
+            dataGridViewProjects.Size = new Size(491, 214);
             dataGridViewProjects.TabIndex = 0;
             // 
             // label1
@@ -72,40 +68,6 @@
             label1.Size = new Size(215, 15);
             label1.TabIndex = 1;
             label1.Text = "Projects (double click to see the details)";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(489, 29);
-            label2.Name = "label2";
-            label2.Size = new Size(38, 15);
-            label2.TabIndex = 2;
-            label2.Text = "label2";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(489, 73);
-            label3.Name = "label3";
-            label3.Size = new Size(38, 15);
-            label3.TabIndex = 3;
-            label3.Text = "label3";
-            // 
-            // comboBox1
-            // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(489, 47);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(121, 23);
-            comboBox1.TabIndex = 4;
-            // 
-            // comboBox2
-            // 
-            comboBox2.FormattingEnabled = true;
-            comboBox2.Location = new Point(489, 91);
-            comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(121, 23);
-            comboBox2.TabIndex = 5;
             // 
             // radioButtonNew
             // 
@@ -148,10 +110,10 @@
             radioButtonOnHold.AutoSize = true;
             radioButtonOnHold.Location = new Point(89, 47);
             radioButtonOnHold.Name = "radioButtonOnHold";
-            radioButtonOnHold.Size = new Size(70, 19);
+            radioButtonOnHold.Size = new Size(68, 19);
             radioButtonOnHold.TabIndex = 9;
             radioButtonOnHold.TabStop = true;
-            radioButtonOnHold.Text = "On Hold";
+            radioButtonOnHold.Text = "On hold";
             radioButtonOnHold.UseVisualStyleBackColor = true;
             radioButtonOnHold.CheckedChanged += radioButtonOnHold_CheckedChanged;
             // 
@@ -183,7 +145,7 @@
             // 
             // buttonAddNewProject
             // 
-            buttonAddNewProject.Location = new Point(18, 361);
+            buttonAddNewProject.Location = new Point(289, 256);
             buttonAddNewProject.Name = "buttonAddNewProject";
             buttonAddNewProject.Size = new Size(93, 48);
             buttonAddNewProject.TabIndex = 11;
@@ -193,7 +155,7 @@
             // 
             // buttonMoveToOnHold
             // 
-            buttonMoveToOnHold.Location = new Point(117, 361);
+            buttonMoveToOnHold.Location = new Point(289, 307);
             buttonMoveToOnHold.Name = "buttonMoveToOnHold";
             buttonMoveToOnHold.Size = new Size(93, 48);
             buttonMoveToOnHold.TabIndex = 12;
@@ -203,9 +165,9 @@
             // 
             // buttonMarkAsCompleted
             // 
-            buttonMarkAsCompleted.Location = new Point(216, 361);
+            buttonMarkAsCompleted.Location = new Point(289, 361);
             buttonMarkAsCompleted.Name = "buttonMarkAsCompleted";
-            buttonMarkAsCompleted.Size = new Size(93, 48);
+            buttonMarkAsCompleted.Size = new Size(192, 42);
             buttonMarkAsCompleted.TabIndex = 13;
             buttonMarkAsCompleted.Text = "Mark project as completed";
             buttonMarkAsCompleted.UseVisualStyleBackColor = true;
@@ -213,7 +175,7 @@
             // 
             // buttonAddTask
             // 
-            buttonAddTask.Location = new Point(315, 361);
+            buttonAddTask.Location = new Point(388, 256);
             buttonAddTask.Name = "buttonAddTask";
             buttonAddTask.Size = new Size(93, 48);
             buttonAddTask.TabIndex = 14;
@@ -222,28 +184,25 @@
             // 
             // buttonReactivateProject
             // 
-            buttonReactivateProject.Location = new Point(414, 361);
+            buttonReactivateProject.Location = new Point(388, 309);
             buttonReactivateProject.Name = "buttonReactivateProject";
             buttonReactivateProject.Size = new Size(93, 48);
             buttonReactivateProject.TabIndex = 15;
             buttonReactivateProject.Text = "Reactivate the project";
             buttonReactivateProject.UseVisualStyleBackColor = true;
+            buttonReactivateProject.Click += buttonReactivateProject_Click;
             // 
             // ProjectForManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(661, 450);
+            ClientSize = new Size(520, 415);
             Controls.Add(buttonReactivateProject);
             Controls.Add(buttonAddTask);
             Controls.Add(buttonMarkAsCompleted);
             Controls.Add(buttonMoveToOnHold);
             Controls.Add(buttonAddNewProject);
             Controls.Add(groupBoxRadioButtons);
-            Controls.Add(comboBox2);
-            Controls.Add(comboBox1);
-            Controls.Add(label3);
-            Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(dataGridViewProjects);
             Name = "ProjectForManager";
@@ -259,10 +218,6 @@
 
         private DataGridView dataGridViewProjects;
         private Label label1;
-        private Label label2;
-        private Label label3;
-        private ComboBox comboBox1;
-        private ComboBox comboBox2;
         private RadioButton radioButtonNew;
         private RadioButton radioButtonOngoing;
         private RadioButton radioButtonCompleted;

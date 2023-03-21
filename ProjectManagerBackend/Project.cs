@@ -261,5 +261,88 @@ namespace ProjectManagerBackend
             }
             adapter.Update(dataSet, "project");
         }
+
+        public static void ReactivateProject(int projectId)
+        {
+            //select queries for data adapters
+            string selectProjectQuery = "select * from project as p where p.project_id = @id;";
+            string selectTasksForProject = "select t.task_id, t.task_project_id, t.task_user_assigned_id, t.task_creation_date, t.task_deadline_date, " +
+                                    "t.task_finished_date, t.task_status_id, t.task_description, t.task_priority_id, t.task_name " +
+                                    "from task as t " +
+                                    "where t.task_project_id = @id;";
+            //update queries for data adapters
+            string updateProjectQuery = "update project set project_status_id = @status where project_id = @id";
+            string updateTaskQuery = "update task set task_status_id = @status where task_project_id = @id and task_id = @taskId";
+
+            var connection = Database.GetConnection();
+            var projectCommand = new MySqlCommand(selectProjectQuery, connection);
+            projectCommand.Parameters.AddWithValue("@id", projectId);
+            //adapter for managing project
+            var adapterForProject = new MySqlDataAdapter(projectCommand);
+
+            //list of all available statuses to determine whats the id of "in progress" status
+            var projectStatuses = ProjectStatus.GetAllStatuses();
+            int projectOngoingId = projectStatuses.FirstOrDefault(property => property.Name == "In progress").Id;
+
+            #region assigningTaskStatusIDs
+            //list of all available task statuses to determine the reqiured id's
+            var taskStatuses = TaskStatus.GetAllTaskStatuses();
+            int taskOnHoldId = taskStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
+            int taskNotStartedId = taskStatuses.FirstOrDefault(property => property.Name == "Not started").Id;
+            #endregion
+
+            //data set to store project and task data table
+            var dataSet = new DataSet();
+            //fill data set project table with project from db
+            adapterForProject.Fill(dataSet, "project");
+            //update command later used to update project status id
+            adapterForProject.UpdateCommand = new MySqlCommand(updateProjectQuery, connection);
+            adapterForProject.UpdateCommand.Parameters.AddWithValue("@id", projectId);
+            adapterForProject.UpdateCommand.Parameters.AddWithValue("@status", projectOngoingId);
+
+            //adapter for managing tasks in a project
+            var adapterForTasks = new MySqlDataAdapter();
+            adapterForTasks.SelectCommand = new MySqlCommand(selectTasksForProject, connection);
+            adapterForTasks.SelectCommand.Parameters.AddWithValue("@id", projectId);
+
+            //fill data set tasks table with tasks assigned to a project
+            adapterForTasks.Fill(dataSet, "tasks");
+            //update command later used to update tasks statuses
+            adapterForTasks.UpdateCommand = new MySqlCommand(updateTaskQuery, connection);
+            adapterForTasks.UpdateCommand.Parameters.AddWithValue("@id", projectId);
+            adapterForTasks.UpdateCommand.Parameters.AddWithValue("@status", taskNotStartedId);
+
+            //loop to go through all tasks assigned to project
+            for (int i = 0; i <= dataSet.Tables["tasks"].Rows.Count - 1; i++)
+            {
+                //if task status is ongoing, waiting for approval or not started, change its status to on hold
+                int taskStatusId = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_status_id"].ToString());
+                if (taskStatusId == taskOnHoldId)
+                {
+                    dataSet.Tables["tasks"].Rows[i]["task_status_id"] =taskNotStartedId;
+                    //task id later used in update query
+                    int taskID = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_id"].ToString());
+                    adapterForTasks.UpdateCommand.Parameters.AddWithValue("@taskId", taskID);
+                    if (dataSet.HasErrors)
+                    {
+                        dataSet.RejectChanges();
+                        throw new Exception("There were some errors while trying to reactivate task.");
+                    }
+                    //change tasks status to on hold
+                    adapterForTasks.Update(dataSet, "tasks");
+                }
+
+            }
+
+            dataSet.Tables["project"].Rows[0]["project_status_id"] = projectOngoingId;
+
+            if (dataSet.HasErrors)
+            {
+                dataSet.RejectChanges();
+                throw new Exception("There were some errors while trying to reactivate the project");
+            }
+            //change projects status to on hold
+            adapterForProject.Update(dataSet, "project");
+        }
     }
 }
