@@ -44,8 +44,6 @@ namespace ProjectManager
 
         private void buttonCancel_Click(object sender, EventArgs e)
         {
-            ProjectForManager projectForManagerForm = new ProjectForManager();
-            projectForManagerForm.Show();
             this.Close();
         }
 
@@ -82,8 +80,6 @@ namespace ProjectManager
                 ProjectManagerBackend.Task.AddNewTask(taskToBeAdded);
                 Project.MoveProjectToInProgress(projectId);
                 MessageBox.Show("New task successfully added to the project");
-                ProjectForManager form = new ProjectForManager();
-                form.Show();
                 this.Close();
             }
             catch(Exception ex)

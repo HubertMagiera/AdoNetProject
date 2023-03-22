@@ -202,6 +202,7 @@
             buttonManageTasks.TabIndex = 16;
             buttonManageTasks.Text = "Manage tasks in project";
             buttonManageTasks.UseVisualStyleBackColor = true;
+            buttonManageTasks.Click += buttonManageTasks_Click;
             // 
             // ProjectForManager
             // 

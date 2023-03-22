@@ -188,13 +188,31 @@ namespace ProjectManager
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
                 AddTaskToProject addTaskForm = new AddTaskToProject(projectId);
                 addTaskForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void buttonManageTasks_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridViewProjects.SelectedRows.Count == 0)
+                    throw new Exception("Please indicate a project.");
+
+                int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
+                string projectName = dataGridViewProjects.SelectedRows[0].Cells[1].Value.ToString();
+                var tasksForProjectForm = new ProjectDetailedView(projectId,projectName);
+                tasksForProjectForm.Show();
                 this.Close();
             }
             catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }
-            
+            } 
         }
     }
 }

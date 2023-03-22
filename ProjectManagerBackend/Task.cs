@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using MySql.Data.MySqlClient;
 using ProjectManagerBackend.DtoModels;
 using System;
 using System.Collections.Generic;
@@ -42,14 +43,28 @@ namespace ProjectManagerBackend
         {
             throw new NotImplementedException();
         }
-        public void ChangeTaskStatus(string statusName)
+        public static void DeleteTask(int taskId)
         {
-            throw new NotImplementedException();
+            string selectQuery = "select * from task where task.task_id = @id;";
+            string deleteQuery = "delete from task where task_id = @id;";
+
+            var connection = Database.GetConnection();
+            var selectCommand = new MySqlCommand(selectQuery, connection);
+            var adapter = new MySqlDataAdapter(selectCommand);
+            adapter.SelectCommand.Parameters.AddWithValue("@id", taskId);
+
+            var taskDataSet = new DataSet();
+            adapter.Fill(taskDataSet, "task");
+
+            adapter.DeleteCommand = new MySqlCommand(deleteQuery, connection);
+            adapter.DeleteCommand.Parameters.AddWithValue("@id", taskId);
+
+            var row = taskDataSet.Tables["task"].Rows[0];
+
+            row.Delete();
+            adapter.Update(taskDataSet,"task");
         }
-        public void ApproveTask()//available only for managers
-        {
-            throw new NotImplementedException();
-        }
+        
         public static void AddNewTask(AddTask taskToAdd)
         {
             //for new task, status "not started" is automatically asigned
@@ -107,9 +122,98 @@ namespace ProjectManagerBackend
             adapter.Update(dataSet, "task");
         }
 
-        public void DeleteTask() 
-        {  
-            throw new NotImplementedException();
+        public static List<ViewTask> GetTasksForProject(int projectId)
+        {
+            var tasksToReturn = new List<ViewTask>();
+
+            var connection = Database.GetConnection();
+            string query = "select t.task_id, t.task_name, t.task_description, t.task_creation_date, t.task_deadline_date, t.task_finished_date, " +
+                            "u.user_name, u.user_surname, tp.task_priority_name, ts.task_status_name " +
+                            "from task as t " +
+                            "inner join user as u on u.user_id = t.task_user_assigned_id " +
+                            "inner join task_priority as tp on tp.task_priority_id = t.task_priority_id " +
+                            "inner join task_status as ts on ts.task_status_id = t.task_status_id " +
+                            "where t.task_project_id = @id;";
+
+            var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@id", projectId);
+
+            var tasks = new DataSet();
+            var adapter = new MySqlDataAdapter(command);
+
+            adapter.Fill(tasks, "tasks");
+
+            for (int i = 0; i <= tasks.Tables["tasks"].Rows.Count - 1; i++)
+            {
+                int id = Convert.ToInt32(tasks.Tables["tasks"].Rows[i]["task_id"]);
+                string name = tasks.Tables["tasks"].Rows[i]["task_name"].ToString();
+                string? description = tasks.Tables["tasks"].Rows[i]["task_description"].ToString();
+                string created = tasks.Tables["tasks"].Rows[i]["task_creation_date"].ToString();
+                string deadline = tasks.Tables["tasks"].Rows[i]["task_deadline_date"].ToString();
+                string? finished = tasks.Tables["tasks"].Rows[i]["task_finished_date"].ToString();
+                string userName = tasks.Tables["tasks"].Rows[i]["user_name"].ToString();
+                string userSurname = tasks.Tables["tasks"].Rows[i]["user_surname"].ToString();
+                string priority = tasks.Tables["tasks"].Rows[i]["task_priority_name"].ToString();
+                string status = tasks.Tables["tasks"].Rows[i]["task_status_name"].ToString();
+
+                var viewTask = new ViewTask(
+                                    id,
+                                    name,
+                                    description,
+                                    userName,
+                                    userSurname,
+                                    created,
+                                    deadline,
+                                    finished,
+                                    status,
+                                    priority);
+                tasksToReturn.Add(viewTask);
+            }
+            if (tasksToReturn.Count == 0)
+                throw new Exception("No tasks for this project.");
+            return tasksToReturn;
         }
+
+        public static void ChangeTaskStatus(int taskId, string statusName)
+        {
+            string updateQuery = "";
+            if(statusName.ToLower() =="finished")
+                updateQuery = "update task set task_status_id = @status, task_finished_date = @date where task_id = @id";
+            else
+                updateQuery = "update task set task_status_id = @status where task_id = @id";
+
+            string selectQuery = "select * from task where task.task_id = @id;";
+
+            var status = TaskStatus.GetAllTaskStatuses().FirstOrDefault(property => property.Name.ToLower() == statusName.ToLower());
+            if (status == null)
+                throw new Exception("Apropriate status not found in database.");
+            int statusId = status.Id;
+
+            var connection = Database.GetConnection();
+            var selectCommand = new MySqlCommand(selectQuery, connection);
+            var adapter = new MySqlDataAdapter(selectCommand);
+            adapter.SelectCommand.Parameters.AddWithValue("@id", taskId);
+
+            var taskDataSet = new DataSet();
+            adapter.Fill(taskDataSet, "task");
+
+            adapter.UpdateCommand = new MySqlCommand(updateQuery, connection);
+            adapter.UpdateCommand.Parameters.AddWithValue("@id", taskId);
+            adapter.UpdateCommand.Parameters.AddWithValue("@status", statusId);
+            if(statusName.ToLower() == "finished")
+            {
+                adapter.UpdateCommand.Parameters.AddWithValue("@date", DateTime.Now);
+                taskDataSet.Tables["task"].Rows[0]["task_finished_date"] = DateTime.Now;
+            }
+
+            taskDataSet.Tables["task"].Rows[0]["task_status_id"] = statusId;
+            if (taskDataSet.HasErrors)
+            {
+                taskDataSet.RejectChanges();
+                throw new Exception("An error occured while trying to update task status.");
+            }
+            adapter.Update(taskDataSet, "task");
+        }
+
     }
 }
