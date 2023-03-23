@@ -64,65 +64,91 @@ namespace ProjectManager
 
         private void radioButtonNotStarted_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = false;
-            buttonDelete.Enabled = true;
-            buttonPutOnHold.Enabled = true;
-            buttonReactivateTask.Enabled = false;
-            loadTasksForProject(radioButtonNotStarted.Text);
+            if(radioButtonNotStarted.Checked)
+            {
+                buttonApprove.Enabled = false;
+                buttonDelete.Enabled = true;
+                buttonPutOnHold.Enabled = true;
+                buttonReactivateTask.Enabled = false;
+                loadTasksForProject(radioButtonNotStarted.Text);
+            }           
         }
 
         private void radioButtonOngoing_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = false;
-            buttonDelete.Enabled = true;
-            buttonPutOnHold.Enabled = true;
-            buttonReactivateTask.Enabled = false;
-            loadTasksForProject(radioButtonOngoing.Text);
+            if(radioButtonOngoing.Checked)
+            {
+                buttonApprove.Enabled = false;
+                buttonDelete.Enabled = true;
+                buttonPutOnHold.Enabled = true;
+                buttonReactivateTask.Enabled = false;
+                loadTasksForProject(radioButtonOngoing.Text);
+            }
+
         }
 
         private void radioButtonWaitingForApproval_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = true;
-            buttonDelete.Enabled = true;
-            buttonPutOnHold.Enabled = true;
-            buttonReactivateTask.Enabled = false;
-            loadTasksForProject(radioButtonWaitingForApproval.Text);
+            if(radioButtonWaitingForApproval.Checked)
+            {
+                buttonApprove.Enabled = true;
+                buttonDelete.Enabled = true;
+                buttonPutOnHold.Enabled = true;
+                buttonReactivateTask.Enabled = false;
+                loadTasksForProject(radioButtonWaitingForApproval.Text);
+            }
+
         }
 
         private void radioButtonAll_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = false;
-            buttonDelete.Enabled = false;
-            buttonPutOnHold.Enabled = false;
-            buttonReactivateTask.Enabled = false;
-            loadTasksForProject(radioButtonAll.Text);
+            if(radioButtonAll.Checked)
+            {
+                buttonApprove.Enabled = false;
+                buttonDelete.Enabled = false;
+                buttonPutOnHold.Enabled = false;
+                buttonReactivateTask.Enabled = false;
+                loadTasksForProject(radioButtonAll.Text);
+            }
         }
 
         private void radioButtonOnHold_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = false;
-            buttonDelete.Enabled = true;
-            buttonPutOnHold.Enabled = false;
-            buttonReactivateTask.Enabled = true;
-            loadTasksForProject(radioButtonOnHold.Text);
+            if(radioButtonOnHold.Checked)
+            {
+                buttonApprove.Enabled = false;
+                buttonDelete.Enabled = true;
+                buttonPutOnHold.Enabled = false;
+                buttonReactivateTask.Enabled = true;
+                loadTasksForProject(radioButtonOnHold.Text);
+            }
+
         }
 
         private void radioButtonFinished_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = false;
-            buttonDelete.Enabled = false;
-            buttonPutOnHold.Enabled = false;
-            buttonReactivateTask.Enabled = false;
-            loadTasksForProject(radioButtonFinished.Text);
+            if(radioButtonFinished.Checked)
+            {
+                buttonApprove.Enabled = false;
+                buttonDelete.Enabled = false;
+                buttonPutOnHold.Enabled = false;
+                buttonReactivateTask.Enabled = false;
+                loadTasksForProject(radioButtonFinished.Text);
+            }
+
         }
 
         private void radioButtonDeleted_CheckedChanged(object sender, EventArgs e)
         {
-            buttonApprove.Enabled = false;
-            buttonDelete.Enabled = false;
-            buttonPutOnHold.Enabled = false;
-            buttonReactivateTask.Enabled = false;
-            loadTasksForProject(radioButtonDeleted.Text);
+            if(radioButtonDeleted.Checked)
+            {
+                buttonApprove.Enabled = false;
+                buttonDelete.Enabled = false;
+                buttonPutOnHold.Enabled = false;
+                buttonReactivateTask.Enabled = false;
+                loadTasksForProject(radioButtonDeleted.Text);
+            }
+
         }
 
         private void dataGridViewTasks_CellClick(object sender, DataGridViewCellEventArgs e)

@@ -31,6 +31,11 @@ namespace ProjectManager
                 dataGridViewProjects.DataSource = null;
                 dataGridViewProjects.Rows.Clear();
                 var projects = _projectService.GetAllProjectsForUser(Login.user.Id);
+                if(projects.Count ==0 )
+                {
+                    MessageBox.Show("This user does not have any projects created.");
+                    return;
+                }
 
                 if (projectStatus != "All")
                 {

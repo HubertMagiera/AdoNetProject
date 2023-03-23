@@ -50,8 +50,6 @@ namespace ProjectManagerBackend.Services
                         );
                 projectsToReturn.Add(viewProject);
             }
-            if (projectsToReturn.Count == 0)
-                throw new Exception("This user does not have any projects created.");
             return projectsToReturn;
         }
 
