@@ -1,4 +1,5 @@
-﻿using ProjectManagerBackend;
+﻿using ProjectManagerBackend.Models;
+using ProjectManagerBackend.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,17 +15,19 @@ namespace ProjectManager
     public partial class Login : Form
     {
         public static User user;
+        private readonly IUserService _userService;
 
         public Login()
         {
             InitializeComponent();
+            _userService = new UserService();
         }
 
         private void buttonLogin_Click(object sender, EventArgs e)
         {
             try
             {
-                user = User.LoginUser(textBoxLogin.Text, textBoxPassword.Text);
+                user = _userService.LoginUser(textBoxLogin.Text, textBoxPassword.Text);
 
                 if (user != null && user.Role.Name == "Manager")
                 {

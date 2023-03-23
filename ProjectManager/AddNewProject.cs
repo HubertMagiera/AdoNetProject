@@ -1,5 +1,6 @@
-﻿using ProjectManagerBackend;
-using ProjectManagerBackend.DtoModels;
+﻿using ProjectManagerBackend.DtoModels;
+using ProjectManagerBackend.Models;
+using ProjectManagerBackend.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,9 +15,12 @@ namespace ProjectManager
 {
     public partial class AddNewProject : Form
     {
+        private readonly IProjectService _projectService;
+
         public AddNewProject()
         {
             InitializeComponent();
+            _projectService = new ProjectService();
             loadProjectTypes();
             comboBoxProjectTypes.SelectedIndex = -1;
         }
@@ -26,7 +30,7 @@ namespace ProjectManager
             try
             {
                 comboBoxProjectTypes.Items.Clear();
-                var types = ProjectType.GetAllProjectTypes();
+                var types = _projectService.GetAllProjectTypes();
                 foreach (var type in types)
                 {
                     comboBoxProjectTypes.Items.Add(type.TypeName);
@@ -68,7 +72,7 @@ namespace ProjectManager
                                                 comboBoxProjectTypes.SelectedItem.ToString(), 
                                                 Login.user.Id
                                                 );
-                Project.AddNewProject(newProject);
+                _projectService.AddNewProject(newProject);
                 MessageBox.Show("New project has been successfully added to database. " +
                                     "You can find it by searching for 'New' projects in projects view panel.");
                 ProjectForManager projectForm = new ProjectForManager();

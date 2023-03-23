@@ -1,5 +1,6 @@
-﻿using ProjectManagerBackend;
-using ProjectManagerBackend.DtoModels;
+﻿using ProjectManagerBackend.DtoModels;
+using ProjectManagerBackend.Models;
+using ProjectManagerBackend.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,9 +15,11 @@ namespace ProjectManager
 {
     public partial class ProjectForManager : Form
     {
+        private readonly IProjectService _projectService;
         public ProjectForManager()
         {
             InitializeComponent();
+            _projectService = new ProjectService();
             radioButtonAll.Checked = true;
             loadProjectsIntoGridView(radioButtonAll.Text);
             dataGridViewProjects.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
@@ -27,7 +30,7 @@ namespace ProjectManager
             {
                 dataGridViewProjects.DataSource = null;
                 dataGridViewProjects.Rows.Clear();
-                var projects = Project.GetAllProjectsForUser(Login.user.Id);
+                var projects = _projectService.GetAllProjectsForUser(Login.user.Id);
 
                 if (projectStatus != "All")
                 {
@@ -131,7 +134,7 @@ namespace ProjectManager
                 if (dataGridViewProjects.SelectedRows.Count == 0)
                     throw new Exception("Please indicate which project you want to move on hold.");
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
-                Project.MoveProjectOnHold(projectId);
+                _projectService.MoveProjectOnHold(projectId);
                 radioButtonAll.Checked = true;
                 loadProjectsIntoGridView(radioButtonAll.Text);
                 MessageBox.Show("Project is now moved on hold. You can reactivate it at any time.");
@@ -150,7 +153,7 @@ namespace ProjectManager
                 if (dataGridViewProjects.SelectedRows.Count == 0)
                     throw new Exception("Please indicate which project you want to mark as completed.");
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
-                Project.MarkProjectAsCompleted(projectId);
+                _projectService.MarkProjectAsCompleted(projectId);
                 radioButtonAll.Checked = true;
                 loadProjectsIntoGridView(radioButtonAll.Text);
                 MessageBox.Show("Project is now marked as completed. You can see it on 'all' projects view");
@@ -168,7 +171,7 @@ namespace ProjectManager
                 if (dataGridViewProjects.SelectedRows.Count == 0)
                     throw new Exception("Please indicate which project you want to reactivate.");
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
-                Project.ReactivateProject(projectId);
+                _projectService.ReactivateProject(projectId);
                 radioButtonAll.Checked = true;
                 loadProjectsIntoGridView(radioButtonAll.Text);
                 MessageBox.Show("Project is now reactivated.");

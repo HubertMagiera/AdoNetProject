@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using ProjectManagerBackend.DtoModels;
+using ProjectManagerBackend.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,42 +8,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectManagerBackend
+namespace ProjectManagerBackend.Services
 {
-    public class Task
+    public class TaskService:ITaskService
     {
-        public Task(int id, Project project, User userAssigned, DateTime creationDate, DateTime deadlineDate, DateTime finishedDate, TaskStatus status, 
-                    string? description, TaskPriority priority, string name)
-        {
-            Id = id;
-            Project = project;
-            UserAssigned = userAssigned;
-            CreationDate = creationDate;
-            DeadlineDate = deadlineDate;
-            FinishedDate = finishedDate;
-            Status = status;
-            Description = description;
-            Priority = priority;
-            Name = name;
-        }
-        #region Properties
-        public int Id { get; set; }
-        public Project Project { get; set; }
-        public User UserAssigned { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime DeadlineDate { get; set; }
-        public DateTime FinishedDate { get; set; }
-        public TaskStatus Status { get; set; }
-        public string? Description { get; set; }
-        public TaskPriority Priority { get; set; }
-        public string Name { get; set; }
-        #endregion
-
-        public static List<Task>GetTasksForUser(int userID)
+        public List<ViewTask> GetTasksForUser(int userID)
         {
             throw new NotImplementedException();
         }
-        public static void DeleteTask(int taskId)
+        public void DeleteTask(int taskId)
         {
             string selectQuery = "select * from task where task.task_id = @id;";
             string deleteQuery = "delete from task where task_id = @id;";
@@ -62,13 +35,13 @@ namespace ProjectManagerBackend
             var row = taskDataSet.Tables["task"].Rows[0];
 
             row.Delete();
-            adapter.Update(taskDataSet,"task");
+            adapter.Update(taskDataSet, "task");
         }
-        
-        public static void AddNewTask(AddTask taskToAdd)
+
+        public void AddNewTask(AddTask taskToAdd)
         {
             //for new task, status "not started" is automatically asigned
-            var statusNotStarted = TaskStatus.GetAllTaskStatuses().FirstOrDefault(property => property.Name == "Not started");
+            var statusNotStarted = GetAllTaskStatuses().FirstOrDefault(property => property.Name == "Not started");
             if (statusNotStarted == null)
                 throw new Exception("Apropriate task status not found in database.");
             int statusId = statusNotStarted.Id;
@@ -122,7 +95,7 @@ namespace ProjectManagerBackend
             adapter.Update(dataSet, "task");
         }
 
-        public static List<ViewTask> GetTasksForProject(int projectId)
+        public List<ViewTask> GetTasksForProject(int projectId)
         {
             var tasksToReturn = new List<ViewTask>();
 
@@ -174,17 +147,17 @@ namespace ProjectManagerBackend
             return tasksToReturn;
         }
 
-        public static void ChangeTaskStatus(int taskId, string statusName)
+        public void ChangeTaskStatus(int taskId, string statusName)
         {
             string updateQuery = "";
-            if(statusName.ToLower() =="finished")
+            if (statusName.ToLower() == "finished")
                 updateQuery = "update task set task_status_id = @status, task_finished_date = @date where task_id = @id";
             else
                 updateQuery = "update task set task_status_id = @status where task_id = @id";
 
             string selectQuery = "select * from task where task.task_id = @id;";
 
-            var status = TaskStatus.GetAllTaskStatuses().FirstOrDefault(property => property.Name.ToLower() == statusName.ToLower());
+            var status = GetAllTaskStatuses().FirstOrDefault(property => property.Name.ToLower() == statusName.ToLower());
             if (status == null)
                 throw new Exception("Apropriate status not found in database.");
             int statusId = status.Id;
@@ -200,7 +173,7 @@ namespace ProjectManagerBackend
             adapter.UpdateCommand = new MySqlCommand(updateQuery, connection);
             adapter.UpdateCommand.Parameters.AddWithValue("@id", taskId);
             adapter.UpdateCommand.Parameters.AddWithValue("@status", statusId);
-            if(statusName.ToLower() == "finished")
+            if (statusName.ToLower() == "finished")
             {
                 adapter.UpdateCommand.Parameters.AddWithValue("@date", DateTime.Now);
                 taskDataSet.Tables["task"].Rows[0]["task_finished_date"] = DateTime.Now;
@@ -215,5 +188,56 @@ namespace ProjectManagerBackend
             adapter.Update(taskDataSet, "task");
         }
 
+        public List<Models.TaskStatus> GetAllTaskStatuses()
+        {
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "Select * from task_status";
+
+            var command = new MySqlCommand(query, connection);
+            var reader = command.ExecuteReader();
+
+            List<Models.TaskStatus> statuses = new List<Models.TaskStatus>();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                statuses.Add(new Models.TaskStatus(id, name));
+            }
+            connection.Close();
+
+            if (statuses.Count == 0)
+            {
+                throw new Exception("No task statuses found in database");
+            }
+            return statuses;
+        }
+
+        public List<TaskPriority> GetAllTaskPriorities()
+        {
+            //returns all task priorities
+
+            List<TaskPriority> priorities = new List<TaskPriority>();
+
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "select * from task_priority;";
+            var command = new MySqlCommand(query, connection);
+
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                priorities.Add(new TaskPriority(id, name));
+            }
+            connection.Close();
+            return priorities;
+
+        }
     }
 }

@@ -1,5 +1,5 @@
-﻿using ProjectManagerBackend;
-using ProjectManagerBackend.DtoModels;
+﻿using ProjectManagerBackend.DtoModels;
+using ProjectManagerBackend.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Task = ProjectManagerBackend.Task;
+using Task = ProjectManagerBackend.Models.Task;
 
 namespace ProjectManager
 {
@@ -17,9 +17,11 @@ namespace ProjectManager
     {
         private readonly string _projectName;
         private readonly int _projectId;
+        private readonly ITaskService _taskService;
         public ProjectDetailedView(int projectId, string projectName)
         {
             InitializeComponent();
+            _taskService = new TaskService();
             _projectId = projectId;
             _projectName = projectName;
             radioButtonAll.Checked = true;
@@ -33,7 +35,8 @@ namespace ProjectManager
             {
                 dataGridViewTasks.DataSource = null;
                 dataGridViewTasks.Rows.Clear();
-                var tasks = Task.GetTasksForProject(1);
+                //var tasks = Task.GetTasksForProject(_projectId);
+                var tasks = _taskService.GetTasksForProject(_projectId);
 
                 if (taskStatus != "All")
                 {
@@ -172,7 +175,8 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to approve a task");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                Task.ChangeTaskStatus(taskId, "finished");
+                //Task.ChangeTaskStatus(taskId, "finished");
+                _taskService.ChangeTaskStatus(taskId, "finished");
                 MessageBox.Show("Task has been approved.");
                 radioButtonAll.Checked = true;
                 loadTasksForProject(radioButtonAll.Text);
@@ -194,7 +198,8 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to delete a task");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                Task.DeleteTask(taskId);
+                //Task.DeleteTask(taskId);
+                _taskService.DeleteTask(taskId);
                 MessageBox.Show("Task has been deleted.");
                 radioButtonAll.Checked = true;
                 loadTasksForProject(radioButtonAll.Text);
@@ -215,7 +220,8 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to put a task on hold");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                Task.ChangeTaskStatus(taskId, "on hold");
+                //Task.ChangeTaskStatus(taskId, "on hold");
+                _taskService.ChangeTaskStatus(taskId, "on hold");
                 MessageBox.Show("Task has been put on hold.");
                 radioButtonAll.Checked = true;
                 loadTasksForProject(radioButtonAll.Text);
@@ -236,7 +242,8 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to reactivate a task.");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                Task.ChangeTaskStatus(taskId, "ongoing");
+                //Task.ChangeTaskStatus(taskId, "ongoing");
+                _taskService.ChangeTaskStatus(taskId, "ongoing");
                 MessageBox.Show("Task has been reactivated.");
                 radioButtonAll.Checked = true;
                 loadTasksForProject(radioButtonAll.Text);

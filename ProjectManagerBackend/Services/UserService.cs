@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using ProjectManagerBackend.DtoModels;
+using ProjectManagerBackend.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,32 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectManagerBackend
+namespace ProjectManagerBackend.Services
 {
-    public class User
+    public class UserService:IUserService
     {
-        public User(int id, string name, string surname, string login, string password, UserRole role)
-        {
-            Id = id;
-            Name = name;
-            Surname = surname;
-            Login = login;
-            Password = password;
-            Role = role;
-        }
-        #region Properties
-        public int Id {get; set;}
-        public string Name { get; set;}
-        public string Surname { get; set; }
-        public string Login { get; set;}
-        public string Password { get; set; }
-        public UserRole Role { get; set; }
-        #endregion
-
-        public static void AddNewUser(RegisterUserDto userToRegister)
+        public void AddNewUser(RegisterUserDto userToRegister)
         {
             //get user roles to map name with id
-            var roles = UserRole.GetAllUserRoles();
+            var roles = GetAllUserRoles();
             int userRoleID = roles.FirstOrDefault(role => role.Name == userToRegister.RoleName).ID;
 
             //process with inserting new user
@@ -54,7 +37,7 @@ namespace ProjectManagerBackend
 
 
             var dataSet = new DataSet();
-            adapter.Fill(dataSet,"user");
+            adapter.Fill(dataSet, "user");
 
             var newRow = dataSet.Tables["user"].NewRow();
             newRow["user_name"] = userToRegister.Name;
@@ -69,14 +52,14 @@ namespace ProjectManagerBackend
                 dataSet.RejectChanges();
                 throw new Exception("An error has occured during inserting new row");
             }
-            adapter.Update(dataSet,"user");
+            adapter.Update(dataSet, "user");
         }
-        public static List<ViewUser> GetAllEmployees()
+        public List<ViewUser> GetAllEmployees()
         {
             //returns all users with employee role
 
             List<ViewUser> employeesToReturn = new List<ViewUser>();
-            var roles = UserRole.GetAllUserRoles();
+            var roles = GetAllUserRoles();
             int employeeRoleId = roles.FirstOrDefault(property => property.Name == "Employee").ID;
 
             var connection = Database.GetConnection();
@@ -89,20 +72,20 @@ namespace ProjectManagerBackend
             command.Parameters.AddWithValue("@roleId", employeeRoleId);
 
             var reader = command.ExecuteReader();
-            while(reader.Read())
+            while (reader.Read())
             {
                 int id = reader.GetInt32(0);
                 string name = reader.GetString(1);
                 string surname = reader.GetString(2);
 
-                employeesToReturn.Add(new ViewUser(id,name,surname));
+                employeesToReturn.Add(new ViewUser(id, name, surname));
             }
             connection.Close();
             return employeesToReturn;
 
         }
 
-        public static User LoginUser(string login, string password)
+        public User LoginUser(string login, string password)
         {
             User userToReturn = null;
             try
@@ -141,14 +124,14 @@ namespace ProjectManagerBackend
                 UserRole role = new UserRole(roleId, roleName);
                 userToReturn = new User(id, name, surname, login, password, role);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
             return userToReturn;
         }
 
-        public static bool verifyLoginUnique(string login)
+        public bool verifyLoginUnique(string login)
         {
             MySqlConnection connection = new MySqlConnection();
             try
@@ -175,9 +158,9 @@ namespace ProjectManagerBackend
             finally
             {
                 connection.Close();
-            }          
+            }
         }
-        public static bool verifyPasswordMeetsRules(string password)
+        public bool verifyPasswordMeetsRules(string password)
         {
             //password needs to be:
             //minimum 8 characters long
@@ -198,6 +181,33 @@ namespace ProjectManagerBackend
                     return true;
             }
             return false;
+        }
+
+        public List<UserRole> GetAllUserRoles()
+        {
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "Select * from user_role";
+
+            var command = new MySqlCommand(query, connection);
+            var reader = command.ExecuteReader();
+
+            List<UserRole> roles = new List<UserRole>();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                roles.Add(new UserRole(id, name));
+            }
+            connection.Close();
+
+            if (roles.Count == 0)
+            {
+                throw new Exception("No user roles found in database");
+            }
+            return roles;
         }
     }
 }

@@ -1,5 +1,6 @@
-﻿using ProjectManagerBackend;
-using ProjectManagerBackend.DtoModels;
+﻿using ProjectManagerBackend.DtoModels;
+using ProjectManagerBackend.Models;
+using ProjectManagerBackend.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,9 +15,12 @@ namespace ProjectManager
 {
     public partial class Register : Form
     {
+        private readonly IUserService _userService;
+
         public Register()
         {
             InitializeComponent();
+            _userService = new UserService();
             comboBoxRole.Items.Clear();
             loadRoles();
         }
@@ -24,7 +28,7 @@ namespace ProjectManager
         {
             try
             {
-                var roles = UserRole.GetAllUserRoles();
+                var roles = _userService.GetAllUserRoles();
                 foreach (var role in roles)
                 {
                     comboBoxRole.Items.Add(role.Name);
@@ -59,7 +63,7 @@ namespace ProjectManager
                     textBoxPassword.Text,
                     comboBoxRole.SelectedItem.ToString()
                     );
-                User.AddNewUser(userToRegister);
+                _userService.AddNewUser(userToRegister);
 
                 MessageBox.Show("New user added to database. Now you can proceed and login with provided credentials.");
                 this.Close();
@@ -91,10 +95,10 @@ namespace ProjectManager
             if (textBoxPassword.Text != textBoxConfirmPassword.Text)
                 throw new Exception("Provided passwords are not equal!");
 
-            if (!User.verifyLoginUnique(textBoxLogin.Text))
+            if (!_userService.verifyLoginUnique(textBoxLogin.Text))
                 throw new Exception("User with provided login already exists in database. Please provide another one.");
 
-            if (!User.verifyPasswordMeetsRules(textBoxPassword.Text))
+            if (!_userService.verifyPasswordMeetsRules(textBoxPassword.Text))
                 throw new Exception("Provided password does not meet security rules! Please provide another one.");
         }
     }

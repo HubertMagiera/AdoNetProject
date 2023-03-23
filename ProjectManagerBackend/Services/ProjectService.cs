@@ -1,38 +1,20 @@
 ﻿using MySql.Data.MySqlClient;
 using ProjectManagerBackend.DtoModels;
-using System;
-using System.Collections.Generic;
+using ProjectManagerBackend.Models;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using System.Xml.Linq;
-using Mysqlx.Crud;
 
-namespace ProjectManagerBackend
+namespace ProjectManagerBackend.Services
 {
-    public class Project
+    public class ProjectService:IProjectService
     {
-        public Project(int id, string name, string? description, string status, User creator, ProjectType type)
-        {
-            Id = id;
-            Name = name;
-            Description = description;
-            Status = status;
-            Creator = creator;
-            Type = type;
-        }
-        #region Properties
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public string Status { get; set; }
-        public User Creator { get; set; }
-        public ProjectType Type { get; set; }
-        #endregion
+        private readonly ITaskService _taskService;
 
-        public static List<ViewProject>GetAllProjectsForUser(int userID)
+        public ProjectService()
+        {
+            _taskService = new TaskService();
+        }
+
+        public List<ViewProject> GetAllProjectsForUser(int userID)
         {
             var projectsToReturn = new List<ViewProject>();
 
@@ -51,7 +33,7 @@ namespace ProjectManagerBackend
 
             adapter.Fill(projects, "projects");
 
-            for (int i = 0; i <= projects.Tables["projects"].Rows.Count-1; i++)
+            for (int i = 0; i <= projects.Tables["projects"].Rows.Count - 1; i++)
             {
                 int id = Convert.ToInt32(projects.Tables["projects"].Rows[i]["project_id"]);
                 string name = projects.Tables["projects"].Rows[i]["project_name"].ToString();
@@ -73,16 +55,16 @@ namespace ProjectManagerBackend
             return projectsToReturn;
         }
 
-        public static void AddNewProject(AddProject projectToBeAdded)
+        public void AddNewProject(AddProject projectToBeAdded)
         {
             //for new projects, status "new" is automatically asigned
-            var statusNew = ProjectStatus.GetAllStatuses().FirstOrDefault(property => property.Name == "New");
+            var statusNew = GetAllStatuses().FirstOrDefault(property => property.Name == "New");
             if (statusNew == null)
                 throw new Exception("Apropriate project status not found in database.");
             int statusId = statusNew.Id;
 
             //assigning apropriate project type id based on user choose
-            var projectType = ProjectType.GetAllProjectTypes().FirstOrDefault(property => property.TypeName == projectToBeAdded.TypeName);
+            var projectType = GetAllProjectTypes().FirstOrDefault(property => property.TypeName == projectToBeAdded.TypeName);
             if (projectType == null)
                 throw new Exception("Apropriate project type not found in database.");
             int projectTypeId = projectType.Id;
@@ -124,7 +106,7 @@ namespace ProjectManagerBackend
             adapter.Update(dataSet, "project");
         }
 
-        public static void MoveProjectOnHold(int projectId)
+        public void MoveProjectOnHold(int projectId)
         {
             //select queries for data adapters
             string selectProjectQuery = "select * from project as p where p.project_id = @id;";
@@ -135,7 +117,7 @@ namespace ProjectManagerBackend
             //update queries for data adapters
             string updateProjectQuery = "update project set project_status_id = @status where project_id = @id";
             string updateTaskQuery = "update task set task_status_id = @status where task_project_id = @id and task_id = @taskId";
-           
+
             var connection = Database.GetConnection();
             var projectCommand = new MySqlCommand(selectProjectQuery, connection);
             projectCommand.Parameters.AddWithValue("@id", projectId);
@@ -143,12 +125,12 @@ namespace ProjectManagerBackend
             var adapterForProject = new MySqlDataAdapter(projectCommand);
 
             //list of all available statuses to determine whats the id of "on hold" status
-            var projectStatuses = ProjectStatus.GetAllStatuses();
+            var projectStatuses = GetAllStatuses();
             int projectOnHoldId = projectStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
 
             #region assigningTaskStatusIDs
             //list of all available task statuses to determine the reqiured id's
-            var taskStatuses = TaskStatus.GetAllTaskStatuses();
+            var taskStatuses = _taskService.GetAllTaskStatuses();
             int taskOngoingId = taskStatuses.FirstOrDefault(property => property.Name == "Ongoing").Id;
             int taskWaitingForApprovalId = taskStatuses.FirstOrDefault(property => property.Name == "Waiting for approval").Id;
             int taskOnHoldId = taskStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
@@ -166,7 +148,7 @@ namespace ProjectManagerBackend
 
             //adapter for managing tasks in a project
             var adapterForTasks = new MySqlDataAdapter();
-            adapterForTasks.SelectCommand = new MySqlCommand(selectTasksForProject,connection);
+            adapterForTasks.SelectCommand = new MySqlCommand(selectTasksForProject, connection);
             adapterForTasks.SelectCommand.Parameters.AddWithValue("@id", projectId);
 
             //fill data set tasks table with tasks assigned to a project
@@ -187,7 +169,7 @@ namespace ProjectManagerBackend
                     //task id later used in update query
                     int taskID = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_id"].ToString());
                     adapterForTasks.UpdateCommand.Parameters.AddWithValue("@taskId", taskID);
-                    if(dataSet.HasErrors)
+                    if (dataSet.HasErrors)
                     {
                         dataSet.RejectChanges();
                         throw new Exception("There were some errors while trying to move project task on hold");
@@ -195,12 +177,12 @@ namespace ProjectManagerBackend
                     //change tasks status to on hold
                     adapterForTasks.Update(dataSet, "tasks");
                 }
-                    
+
             }
-            
+
             dataSet.Tables["project"].Rows[0]["project_status_id"] = projectOnHoldId;
 
-            if(dataSet.HasErrors)
+            if (dataSet.HasErrors)
             {
                 dataSet.RejectChanges();
                 throw new Exception("There were some errors while trying to move project on hold");
@@ -209,7 +191,7 @@ namespace ProjectManagerBackend
             adapterForProject.Update(dataSet, "project");
         }
 
-        public static void MarkProjectAsCompleted(int projectId)
+        public void MarkProjectAsCompleted(int projectId)
         {
             string selectProjectQuery = "select * from project as p where p.project_id = @id;";
             string selectTasksForProject = "select t.task_id, t.task_project_id, t.task_user_assigned_id, t.task_creation_date, t.task_deadline_date, " +
@@ -223,11 +205,11 @@ namespace ProjectManagerBackend
             projectCommand.Parameters.AddWithValue("@id", projectId);
             var adapter = new MySqlDataAdapter(projectCommand);
 
-            var projectStatuses = ProjectStatus.GetAllStatuses();
+            var projectStatuses = GetAllStatuses();
             int projectCompletedId = projectStatuses.FirstOrDefault(property => property.Name == "Completed").Id;
 
             #region assigningTaskStatusIDs
-            var taskStatuses = TaskStatus.GetAllTaskStatuses();
+            var taskStatuses = _taskService.GetAllTaskStatuses();
             int taskOngoingId = taskStatuses.FirstOrDefault(property => property.Name == "Ongoing").Id;
             int taskWaitingForApprovalId = taskStatuses.FirstOrDefault(property => property.Name == "Waiting for approval").Id;
             int taskOnHoldId = taskStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
@@ -263,7 +245,7 @@ namespace ProjectManagerBackend
             adapter.Update(dataSet, "project");
         }
 
-        public static void ReactivateProject(int projectId)
+        public void ReactivateProject(int projectId)
         {
             //select queries for data adapters
             string selectProjectQuery = "select * from project as p where p.project_id = @id;";
@@ -282,12 +264,12 @@ namespace ProjectManagerBackend
             var adapterForProject = new MySqlDataAdapter(projectCommand);
 
             //list of all available statuses to determine whats the id of "in progress" status
-            var projectStatuses = ProjectStatus.GetAllStatuses();
+            var projectStatuses = GetAllStatuses();
             int projectOngoingId = projectStatuses.FirstOrDefault(property => property.Name == "In progress").Id;
 
             #region assigningTaskStatusIDs
             //list of all available task statuses to determine the reqiured id's
-            var taskStatuses = TaskStatus.GetAllTaskStatuses();
+            var taskStatuses = _taskService.GetAllTaskStatuses();
             int taskOnHoldId = taskStatuses.FirstOrDefault(property => property.Name == "On hold").Id;
             int taskNotStartedId = taskStatuses.FirstOrDefault(property => property.Name == "Not started").Id;
             #endregion
@@ -320,7 +302,7 @@ namespace ProjectManagerBackend
                 int taskStatusId = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_status_id"].ToString());
                 if (taskStatusId == taskOnHoldId)
                 {
-                    dataSet.Tables["tasks"].Rows[i]["task_status_id"] =taskNotStartedId;
+                    dataSet.Tables["tasks"].Rows[i]["task_status_id"] = taskNotStartedId;
                     //task id later used in update query
                     int taskID = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_id"].ToString());
                     adapterForTasks.UpdateCommand.Parameters.AddWithValue("@taskId", taskID);
@@ -346,7 +328,7 @@ namespace ProjectManagerBackend
             adapterForProject.Update(dataSet, "project");
         }
 
-        public static void MoveProjectToInProgress(int projectId)
+        public void MoveProjectToInProgress(int projectId)
         {
             //method used to mark project as in progress when adding first task to it
             string selectProjectQuery = "select * from project as p where p.project_id = @id;";
@@ -360,7 +342,7 @@ namespace ProjectManagerBackend
             projectCommand.Parameters.AddWithValue("@id", projectId);
             var adapter = new MySqlDataAdapter(projectCommand);
 
-            var projectStatuses = ProjectStatus.GetAllStatuses();
+            var projectStatuses = GetAllStatuses();
             int projectOngoingId = projectStatuses.FirstOrDefault(property => property.Name == "In progress").Id;
 
             var dataSet = new DataSet();
@@ -384,6 +366,60 @@ namespace ProjectManagerBackend
                 throw new Exception("There were some errors while trying to mark project as in progress");
             }
             adapter.Update(dataSet, "project");
+        }
+
+        public List<ProjectStatus> GetAllStatuses()
+        {
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "Select * from project_status";
+
+            var command = new MySqlCommand(query, connection);
+            var reader = command.ExecuteReader();
+
+            List<ProjectStatus> statuses = new List<ProjectStatus>();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                statuses.Add(new ProjectStatus(id, name));
+            }
+            connection.Close();
+
+            if (statuses.Count == 0)
+            {
+                throw new Exception("No project types found in database");
+            }
+            return statuses;
+        }
+
+        public List<ProjectType> GetAllProjectTypes()
+        {
+            var connection = Database.GetConnection();
+            connection.Open();
+
+            string query = "Select * from project_type";
+
+            var command = new MySqlCommand(query, connection);
+            var reader = command.ExecuteReader();
+
+            List<ProjectType> roles = new List<ProjectType>();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+
+                roles.Add(new ProjectType(id, name));
+            }
+            connection.Close();
+
+            if (roles.Count == 0)
+            {
+                throw new Exception("No project types found in database");
+            }
+            return roles;
         }
     }
 }
