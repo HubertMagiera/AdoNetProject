@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Mysqlx.Crud;
 using ProjectManagerBackend.DtoModels;
 using ProjectManagerBackend.Models;
 using System;
@@ -14,7 +15,55 @@ namespace ProjectManagerBackend.Services
     {
         public List<ViewTask> GetTasksForUser(int userID)
         {
-            throw new NotImplementedException();
+            var tasksToReturn = new List<ViewTask>();
+
+            var connection = Database.GetConnection();
+            string query = "select t.task_id, p.project_name, t.task_name, t.task_description, t.task_creation_date, t.task_deadline_date, t.task_finished_date, " +
+                            "u.user_name, u.user_surname, tp.task_priority_name, ts.task_status_name " +
+                            "from task as t " +
+                            "inner join user as u on u.user_id = t.task_user_assigned_id " +
+                            "inner join task_priority as tp on tp.task_priority_id = t.task_priority_id " +
+                            "inner join task_status as ts on ts.task_status_id = t.task_status_id " +
+                            "inner join project as p on p.project_id = t.task_project_id " +
+                            "where t.task_user_assigned_id = @id;";
+
+            var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@id", userID);
+
+            var tasks = new DataSet();
+            var adapter = new MySqlDataAdapter(command);
+
+            adapter.Fill(tasks, "tasks");
+
+            for (int i = 0; i <= tasks.Tables["tasks"].Rows.Count - 1; i++)
+            {
+                int id = Convert.ToInt32(tasks.Tables["tasks"].Rows[i]["task_id"]);
+                string name = tasks.Tables["tasks"].Rows[i]["task_name"].ToString();
+                string? description = tasks.Tables["tasks"].Rows[i]["task_description"].ToString();
+                string created = tasks.Tables["tasks"].Rows[i]["task_creation_date"].ToString();
+                string deadline = tasks.Tables["tasks"].Rows[i]["task_deadline_date"].ToString();
+                string? finished = tasks.Tables["tasks"].Rows[i]["task_finished_date"].ToString();
+                string userName = tasks.Tables["tasks"].Rows[i]["user_name"].ToString();
+                string userSurname = tasks.Tables["tasks"].Rows[i]["user_surname"].ToString();
+                string priority = tasks.Tables["tasks"].Rows[i]["task_priority_name"].ToString();
+                string status = tasks.Tables["tasks"].Rows[i]["task_status_name"].ToString();
+                string projectName = tasks.Tables["tasks"].Rows[i]["project_name"].ToString();
+
+                var viewTask = new ViewTask(
+                                    id,
+                                    name,
+                                    description,
+                                    userName,
+                                    userSurname,
+                                    created,
+                                    deadline,
+                                    finished,
+                                    status,
+                                    priority,
+                                    projectName);
+                tasksToReturn.Add(viewTask);
+            }
+            return tasksToReturn;
         }
         public void DeleteTask(int taskId)
         {
@@ -100,12 +149,13 @@ namespace ProjectManagerBackend.Services
             var tasksToReturn = new List<ViewTask>();
 
             var connection = Database.GetConnection();
-            string query = "select t.task_id, t.task_name, t.task_description, t.task_creation_date, t.task_deadline_date, t.task_finished_date, " +
+            string query = "select t.task_id, p.project_name, t.task_name, t.task_description, t.task_creation_date, t.task_deadline_date, t.task_finished_date, " +
                             "u.user_name, u.user_surname, tp.task_priority_name, ts.task_status_name " +
                             "from task as t " +
                             "inner join user as u on u.user_id = t.task_user_assigned_id " +
                             "inner join task_priority as tp on tp.task_priority_id = t.task_priority_id " +
                             "inner join task_status as ts on ts.task_status_id = t.task_status_id " +
+                            "inner join project as p on p.project_id = t.task_project_id " +
                             "where t.task_project_id = @id;";
 
             var command = new MySqlCommand(query, connection);
@@ -128,6 +178,7 @@ namespace ProjectManagerBackend.Services
                 string userSurname = tasks.Tables["tasks"].Rows[i]["user_surname"].ToString();
                 string priority = tasks.Tables["tasks"].Rows[i]["task_priority_name"].ToString();
                 string status = tasks.Tables["tasks"].Rows[i]["task_status_name"].ToString();
+                string projectName = tasks.Tables["tasks"].Rows[i]["project_name"].ToString();
 
                 var viewTask = new ViewTask(
                                     id,
@@ -139,7 +190,8 @@ namespace ProjectManagerBackend.Services
                                     deadline,
                                     finished,
                                     status,
-                                    priority);
+                                    priority,
+                                    projectName);
                 tasksToReturn.Add(viewTask);
             }
             if (tasksToReturn.Count == 0)

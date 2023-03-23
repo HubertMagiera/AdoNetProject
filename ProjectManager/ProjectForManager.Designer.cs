@@ -35,7 +35,6 @@
             radioButtonCompleted = new RadioButton();
             radioButtonOnHold = new RadioButton();
             groupBoxRadioButtons = new GroupBox();
-            radioButtonAll = new RadioButton();
             buttonAddNewProject = new Button();
             buttonMoveToOnHold = new Button();
             buttonMarkAsCompleted = new Button();
@@ -120,7 +119,6 @@
             // 
             // groupBoxRadioButtons
             // 
-            groupBoxRadioButtons.Controls.Add(radioButtonAll);
             groupBoxRadioButtons.Controls.Add(radioButtonNew);
             groupBoxRadioButtons.Controls.Add(radioButtonOnHold);
             groupBoxRadioButtons.Controls.Add(radioButtonOngoing);
@@ -131,18 +129,6 @@
             groupBoxRadioButtons.TabIndex = 10;
             groupBoxRadioButtons.TabStop = false;
             groupBoxRadioButtons.Text = "Filter projects by status";
-            // 
-            // radioButtonAll
-            // 
-            radioButtonAll.AutoSize = true;
-            radioButtonAll.Location = new Point(6, 75);
-            radioButtonAll.Name = "radioButtonAll";
-            radioButtonAll.Size = new Size(39, 19);
-            radioButtonAll.TabIndex = 10;
-            radioButtonAll.TabStop = true;
-            radioButtonAll.Text = "All";
-            radioButtonAll.UseVisualStyleBackColor = true;
-            radioButtonAll.CheckedChanged += radioButtonAll_CheckedChanged;
             // 
             // buttonAddNewProject
             // 
@@ -236,7 +222,6 @@
         private RadioButton radioButtonCompleted;
         private RadioButton radioButtonOnHold;
         private GroupBox groupBoxRadioButtons;
-        private RadioButton radioButtonAll;
         private Button buttonAddNewProject;
         private Button buttonMoveToOnHold;
         private Button buttonMarkAsCompleted;

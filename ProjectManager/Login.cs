@@ -34,6 +34,11 @@ namespace ProjectManager
                     var project = new ProjectForManager();
                     project.Show();
                 }
+                else if(user!=null)
+                {
+                    var tasks = new EmployeeTaskView();
+                    tasks.Show();
+                }
                 this.Close();
 
             }

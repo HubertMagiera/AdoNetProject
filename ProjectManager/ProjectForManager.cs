@@ -20,8 +20,8 @@ namespace ProjectManager
         {
             InitializeComponent();
             _projectService = new ProjectService();
-            radioButtonAll.Checked = true;
-            loadProjectsIntoGridView(radioButtonAll.Text);
+            radioButtonOngoing.Checked = true;
+            loadProjectsIntoGridView(radioButtonOngoing.Text);
             dataGridViewProjects.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
         }
         private void loadProjectsIntoGridView(string projectStatus)
@@ -31,19 +31,13 @@ namespace ProjectManager
                 dataGridViewProjects.DataSource = null;
                 dataGridViewProjects.Rows.Clear();
                 var projects = _projectService.GetAllProjectsForUser(Login.user.Id);
-                if(projects.Count ==0 )
+                if (projects.Count == 0)
                 {
                     MessageBox.Show("This user does not have any projects created.");
                     return;
                 }
 
-                if (projectStatus != "All")
-                {
-                    var list = projects.Where(property => property.Status == projectStatus).ToList();
-                    dataGridViewProjects.DataSource = list;
-                    dataGridViewProjects.Columns[0].Visible = false;
-                    return;
-                }
+                projects = projects.Where(property => property.Status == projectStatus).ToList();
 
                 dataGridViewProjects.DataSource = projects;
                 dataGridViewProjects.Columns[0].Visible = false;
@@ -80,20 +74,6 @@ namespace ProjectManager
                 buttonMoveToOnHold.Enabled = true;
                 buttonReactivateProject.Enabled = false;
                 buttonManageTasks.Enabled = true;
-            }
-        }
-
-        private void radioButtonAll_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButtonAll.Checked)
-            {
-                loadProjectsIntoGridView(radioButtonAll.Text);
-                buttonAddNewProject.Enabled = true;
-                buttonAddTask.Enabled = false;
-                buttonMarkAsCompleted.Enabled = false;
-                buttonMoveToOnHold.Enabled = false;
-                buttonReactivateProject.Enabled = false;
-                buttonManageTasks.Enabled = false;
             }
         }
 
@@ -140,8 +120,8 @@ namespace ProjectManager
                     throw new Exception("Please indicate which project you want to move on hold.");
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
                 _projectService.MoveProjectOnHold(projectId);
-                radioButtonAll.Checked = true;
-                loadProjectsIntoGridView(radioButtonAll.Text);
+                radioButtonOnHold.Checked = true;
+                loadProjectsIntoGridView(radioButtonOnHold.Text);
                 MessageBox.Show("Project is now moved on hold. You can reactivate it at any time.");
             }
             catch (Exception ex)
@@ -159,8 +139,8 @@ namespace ProjectManager
                     throw new Exception("Please indicate which project you want to mark as completed.");
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
                 _projectService.MarkProjectAsCompleted(projectId);
-                radioButtonAll.Checked = true;
-                loadProjectsIntoGridView(radioButtonAll.Text);
+                radioButtonCompleted.Checked = true;
+                loadProjectsIntoGridView(radioButtonCompleted.Text);
                 MessageBox.Show("Project is now marked as completed. You can see it on 'all' projects view");
             }
             catch (Exception ex)
@@ -177,8 +157,8 @@ namespace ProjectManager
                     throw new Exception("Please indicate which project you want to reactivate.");
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
                 _projectService.ReactivateProject(projectId);
-                radioButtonAll.Checked = true;
-                loadProjectsIntoGridView(radioButtonAll.Text);
+                radioButtonOngoing.Checked = true;
+                loadProjectsIntoGridView(radioButtonOngoing.Text);
                 MessageBox.Show("Project is now reactivated.");
             }
             catch (Exception ex)
@@ -213,14 +193,14 @@ namespace ProjectManager
 
                 int projectId = Convert.ToInt32(dataGridViewProjects.SelectedRows[0].Cells[0].Value);
                 string projectName = dataGridViewProjects.SelectedRows[0].Cells[1].Value.ToString();
-                var tasksForProjectForm = new ProjectDetailedView(projectId,projectName);
+                var tasksForProjectForm = new ProjectDetailedView(projectId, projectName);
                 tasksForProjectForm.Show();
                 this.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            } 
+            }
         }
     }
 }

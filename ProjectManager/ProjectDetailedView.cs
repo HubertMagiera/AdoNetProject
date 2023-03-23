@@ -24,9 +24,9 @@ namespace ProjectManager
             _taskService = new TaskService();
             _projectId = projectId;
             _projectName = projectName;
-            radioButtonAll.Checked = true;
+            radioButtonOngoing.Checked = true;
             labelProjectInfo.Text += projectName;
-            loadTasksForProject(radioButtonAll.Text);
+            loadTasksForProject(radioButtonOngoing.Text);
         }
 
         private void loadTasksForProject(string taskStatus)
@@ -38,21 +38,16 @@ namespace ProjectManager
                 //var tasks = Task.GetTasksForProject(_projectId);
                 var tasks = _taskService.GetTasksForProject(_projectId);
 
-                if (taskStatus != "All")
-                {
-                    var list = tasks.Where(property => property.TaskStatus == taskStatus).ToList();
-                    dataGridViewTasks.DataSource = list;
-                }
-                else
-                {
-                    dataGridViewTasks.DataSource = tasks;
-                }
+                tasks = tasks.Where(property => property.TaskStatus == taskStatus).ToList();
+                dataGridViewTasks.DataSource = tasks;
+
                 dataGridViewTasks.Columns[0].Visible = false;
                 dataGridViewTasks.Columns["Description"].Visible = false;
                 dataGridViewTasks.Columns["CreationDate"].Visible = false;
                 dataGridViewTasks.Columns["DeadlineDate"].Visible = false;
                 dataGridViewTasks.Columns["FinishedDate"].Visible = false;
                 dataGridViewTasks.Columns["TaskPriority"].Visible = false;
+                dataGridViewTasks.Columns["ProjectName"].Visible = false;
 
 
             }
@@ -64,19 +59,19 @@ namespace ProjectManager
 
         private void radioButtonNotStarted_CheckedChanged(object sender, EventArgs e)
         {
-            if(radioButtonNotStarted.Checked)
+            if (radioButtonNotStarted.Checked)
             {
                 buttonApprove.Enabled = false;
                 buttonDelete.Enabled = true;
                 buttonPutOnHold.Enabled = true;
                 buttonReactivateTask.Enabled = false;
                 loadTasksForProject(radioButtonNotStarted.Text);
-            }           
+            }
         }
 
         private void radioButtonOngoing_CheckedChanged(object sender, EventArgs e)
         {
-            if(radioButtonOngoing.Checked)
+            if (radioButtonOngoing.Checked)
             {
                 buttonApprove.Enabled = false;
                 buttonDelete.Enabled = true;
@@ -89,7 +84,7 @@ namespace ProjectManager
 
         private void radioButtonWaitingForApproval_CheckedChanged(object sender, EventArgs e)
         {
-            if(radioButtonWaitingForApproval.Checked)
+            if (radioButtonWaitingForApproval.Checked)
             {
                 buttonApprove.Enabled = true;
                 buttonDelete.Enabled = true;
@@ -100,21 +95,9 @@ namespace ProjectManager
 
         }
 
-        private void radioButtonAll_CheckedChanged(object sender, EventArgs e)
-        {
-            if(radioButtonAll.Checked)
-            {
-                buttonApprove.Enabled = false;
-                buttonDelete.Enabled = false;
-                buttonPutOnHold.Enabled = false;
-                buttonReactivateTask.Enabled = false;
-                loadTasksForProject(radioButtonAll.Text);
-            }
-        }
-
         private void radioButtonOnHold_CheckedChanged(object sender, EventArgs e)
         {
-            if(radioButtonOnHold.Checked)
+            if (radioButtonOnHold.Checked)
             {
                 buttonApprove.Enabled = false;
                 buttonDelete.Enabled = true;
@@ -127,7 +110,7 @@ namespace ProjectManager
 
         private void radioButtonFinished_CheckedChanged(object sender, EventArgs e)
         {
-            if(radioButtonFinished.Checked)
+            if (radioButtonFinished.Checked)
             {
                 buttonApprove.Enabled = false;
                 buttonDelete.Enabled = false;
@@ -140,7 +123,7 @@ namespace ProjectManager
 
         private void radioButtonDeleted_CheckedChanged(object sender, EventArgs e)
         {
-            if(radioButtonDeleted.Checked)
+            if (radioButtonDeleted.Checked)
             {
                 buttonApprove.Enabled = false;
                 buttonDelete.Enabled = false;
@@ -153,19 +136,19 @@ namespace ProjectManager
 
         private void dataGridViewTasks_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            labelTaskCreationDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells[5].Value.ToString()).ToString("dd/MMMM/yyyy");
-            labelDeadlineDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells[6].Value.ToString()).ToString("dd/MMMM/yyyy");
-            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells[7].Value.ToString()))
+            labelTaskCreationDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["CreationDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
+            labelDeadlineDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["DeadlineDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
+            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString()))
                 labelTaskFinishedDate.Text = "Task not finished yet";
             else
             {
-                labelTaskFinishedDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells[7].Value.ToString()).ToString("dd/MMMM/yyyy");
+                labelTaskFinishedDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
             }
-            labelTaskPriority.Text = dataGridViewTasks.CurrentRow.Cells[9].Value.ToString();
-            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells[2].Value.ToString()))
+            labelTaskPriority.Text = dataGridViewTasks.CurrentRow.Cells["TaskPriority"].Value.ToString();
+            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString()))
                 textBoxTaskDescription.Text = "This task does not have any description.";
             else
-                textBoxTaskDescription.Text = dataGridViewTasks.CurrentRow.Cells[2].Value.ToString();
+                textBoxTaskDescription.Text = dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString();
 
         }
 
@@ -204,8 +187,8 @@ namespace ProjectManager
                 //Task.ChangeTaskStatus(taskId, "finished");
                 _taskService.ChangeTaskStatus(taskId, "finished");
                 MessageBox.Show("Task has been approved.");
-                radioButtonAll.Checked = true;
-                loadTasksForProject(radioButtonAll.Text);
+                radioButtonWaitingForApproval.Checked = true;
+                loadTasksForProject(radioButtonWaitingForApproval.Text);
             }
             catch (Exception ex)
             {
@@ -227,8 +210,8 @@ namespace ProjectManager
                 //Task.DeleteTask(taskId);
                 _taskService.DeleteTask(taskId);
                 MessageBox.Show("Task has been deleted.");
-                radioButtonAll.Checked = true;
-                loadTasksForProject(radioButtonAll.Text);
+                radioButtonDeleted.Checked = true;
+                loadTasksForProject(radioButtonDeleted.Text);
             }
             catch (Exception ex)
             {
@@ -249,8 +232,8 @@ namespace ProjectManager
                 //Task.ChangeTaskStatus(taskId, "on hold");
                 _taskService.ChangeTaskStatus(taskId, "on hold");
                 MessageBox.Show("Task has been put on hold.");
-                radioButtonAll.Checked = true;
-                loadTasksForProject(radioButtonAll.Text);
+                radioButtonOnHold.Checked = true;
+                loadTasksForProject(radioButtonOnHold.Text);
             }
             catch (Exception ex)
             {
@@ -271,8 +254,8 @@ namespace ProjectManager
                 //Task.ChangeTaskStatus(taskId, "ongoing");
                 _taskService.ChangeTaskStatus(taskId, "ongoing");
                 MessageBox.Show("Task has been reactivated.");
-                radioButtonAll.Checked = true;
-                loadTasksForProject(radioButtonAll.Text);
+                radioButtonOngoing.Checked = true;
+                loadTasksForProject(radioButtonOngoing.Text);
             }
             catch (Exception ex)
             {

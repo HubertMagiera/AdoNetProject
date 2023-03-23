@@ -33,7 +33,6 @@
             labelProjectInfo = new Label();
             label1 = new Label();
             groupBox1 = new GroupBox();
-            radioButtonAll = new RadioButton();
             radioButtonDeleted = new RadioButton();
             radioButtonFinished = new RadioButton();
             radioButtonOnHold = new RadioButton();
@@ -72,7 +71,6 @@
             dataGridViewTasks.AllowUserToDeleteRows = false;
             dataGridViewTasks.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewTasks.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewTasks.ColumnHeadersVisible = false;
             dataGridViewTasks.Location = new Point(12, 37);
             dataGridViewTasks.MultiSelect = false;
             dataGridViewTasks.Name = "dataGridViewTasks";
@@ -103,7 +101,6 @@
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(radioButtonAll);
             groupBox1.Controls.Add(radioButtonDeleted);
             groupBox1.Controls.Add(radioButtonFinished);
             groupBox1.Controls.Add(radioButtonOnHold);
@@ -116,18 +113,6 @@
             groupBox1.TabIndex = 4;
             groupBox1.TabStop = false;
             groupBox1.Text = "Task status";
-            // 
-            // radioButtonAll
-            // 
-            radioButtonAll.AutoSize = true;
-            radioButtonAll.Location = new Point(6, 92);
-            radioButtonAll.Name = "radioButtonAll";
-            radioButtonAll.Size = new Size(39, 19);
-            radioButtonAll.TabIndex = 8;
-            radioButtonAll.TabStop = true;
-            radioButtonAll.Text = "All";
-            radioButtonAll.UseVisualStyleBackColor = true;
-            radioButtonAll.CheckedChanged += radioButtonAll_CheckedChanged;
             // 
             // radioButtonDeleted
             // 
@@ -382,7 +367,6 @@
         private Label labelProjectInfo;
         private Label label1;
         private GroupBox groupBox1;
-        private RadioButton radioButtonAll;
         private RadioButton radioButtonDeleted;
         private RadioButton radioButtonFinished;
         private RadioButton radioButtonOnHold;

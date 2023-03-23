@@ -8,7 +8,7 @@ namespace ProjectManagerBackend.DtoModels
 {
     public class ViewTask
     {
-        public ViewTask(int id, string taskName, string? description, string userName, string userSurname, string creationDate, string deadlineDate, string? finishedDate, string taskStatus, string taskPriority)
+        public ViewTask(int id, string taskName, string? description, string userName, string userSurname, string creationDate, string deadlineDate, string? finishedDate, string taskStatus, string taskPriority,string projectName)
         {
             Id = id;
             TaskName = taskName;
@@ -20,9 +20,11 @@ namespace ProjectManagerBackend.DtoModels
             FinishedDate = finishedDate;
             TaskStatus = taskStatus;
             TaskPriority = taskPriority;
+            ProjectName = projectName;
         }
 
         public int Id { get; set; }
+        public string ProjectName { get; set; }
         public string TaskName { get; set; }
         public string? Description { get; set; }
         public string UserName { get; set; }
@@ -32,6 +34,7 @@ namespace ProjectManagerBackend.DtoModels
         public string? FinishedDate { get; set; }
         public string TaskStatus { get; set; }
         public string TaskPriority { get; set; }
+
 
     }
 }
