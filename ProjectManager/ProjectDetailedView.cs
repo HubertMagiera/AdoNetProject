@@ -199,6 +199,9 @@ namespace ProjectManager
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
+            var dialogResult = MessageBox.Show("Do you want to delete this task?","Warning!",MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.No)
+                return;
             try
             {
                 if (dataGridViewTasks.SelectedRows.Count <= 0)

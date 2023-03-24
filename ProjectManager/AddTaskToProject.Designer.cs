@@ -55,7 +55,7 @@
             // dateTimePickerTaskDeadline
             // 
             dateTimePickerTaskDeadline.Location = new Point(25, 78);
-            dateTimePickerTaskDeadline.MinDate = new DateTime(2023, 3, 21, 0, 0, 0, 0);
+            dateTimePickerTaskDeadline.MinDate = DateTime.Today;
             dateTimePickerTaskDeadline.Name = "dateTimePickerTaskDeadline";
             dateTimePickerTaskDeadline.Size = new Size(200, 23);
             dateTimePickerTaskDeadline.TabIndex = 2;

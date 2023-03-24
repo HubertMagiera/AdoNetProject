@@ -192,10 +192,7 @@ namespace ProjectManagerBackend.Services
         public void MarkProjectAsCompleted(int projectId)
         {
             string selectProjectQuery = "select * from project as p where p.project_id = @id;";
-            string selectTasksForProject = "select t.task_id, t.task_project_id, t.task_user_assigned_id, t.task_creation_date, t.task_deadline_date, " +
-                                    "t.task_finished_date, t.task_status_id, t.task_description, t.task_priority_id, t.task_name " +
-                                    "from task as t " +
-                                    "where t.task_project_id = @id;";
+            string selectTasksForProject = "select * from task as t where t.task_project_id = @id;";
             string updateProjectQuery = "update project set project_status_id = @status where project_id = @id";
 
             var connection = Database.GetConnection();
