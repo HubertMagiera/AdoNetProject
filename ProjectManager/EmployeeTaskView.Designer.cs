@@ -190,9 +190,8 @@
             labelTaskPriority.AutoSize = true;
             labelTaskPriority.Location = new Point(436, 184);
             labelTaskPriority.Name = "labelTaskPriority";
-            labelTaskPriority.Size = new Size(16, 15);
+            labelTaskPriority.Size = new Size(0, 15);
             labelTaskPriority.TabIndex = 28;
-            labelTaskPriority.Text = "...";
             // 
             // label6
             // 
@@ -208,9 +207,8 @@
             labelTaskFinishedDate.AutoSize = true;
             labelTaskFinishedDate.Location = new Point(436, 139);
             labelTaskFinishedDate.Name = "labelTaskFinishedDate";
-            labelTaskFinishedDate.Size = new Size(16, 15);
+            labelTaskFinishedDate.Size = new Size(0, 15);
             labelTaskFinishedDate.TabIndex = 26;
-            labelTaskFinishedDate.Text = "...";
             // 
             // label5
             // 
@@ -226,9 +224,8 @@
             labelDeadlineDate.AutoSize = true;
             labelDeadlineDate.Location = new Point(436, 92);
             labelDeadlineDate.Name = "labelDeadlineDate";
-            labelDeadlineDate.Size = new Size(16, 15);
+            labelDeadlineDate.Size = new Size(0, 15);
             labelDeadlineDate.TabIndex = 24;
-            labelDeadlineDate.Text = "...";
             // 
             // label4
             // 
@@ -244,9 +241,8 @@
             labelTaskCreationDate.AutoSize = true;
             labelTaskCreationDate.Location = new Point(436, 42);
             labelTaskCreationDate.Name = "labelTaskCreationDate";
-            labelTaskCreationDate.Size = new Size(16, 15);
+            labelTaskCreationDate.Size = new Size(0, 15);
             labelTaskCreationDate.TabIndex = 22;
-            labelTaskCreationDate.Text = "...";
             // 
             // textBoxTaskDescription
             // 

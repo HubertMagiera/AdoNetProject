@@ -28,11 +28,6 @@ namespace ProjectManager
             try
             {
                 var tasks = _taskService.GetTasksForUser(Login.user.Id);
-                if (tasks.Count == 0)
-                {
-                    MessageBox.Show(String.Format("This user does not have any tasks in status: {0}.", taskStatus));
-                    return;
-                }
                 dataGridViewTasks.DataSource = null;
                 dataGridViewTasks.Rows.Clear();
 

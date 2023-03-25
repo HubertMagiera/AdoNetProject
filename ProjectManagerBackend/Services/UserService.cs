@@ -16,12 +16,15 @@ namespace ProjectManagerBackend.Services
         {
             //get user roles to map name with id
             var roles = GetAllUserRoles();
-            int userRoleID = roles.FirstOrDefault(role => role.Name == userToRegister.RoleName).ID;
+            var userRole = roles.FirstOrDefault(role => role.Name == userToRegister.RoleName);
+            if (userRole == null)
+                throw new Exception("Appropriate user role not found in database!");
+            int userRoleID = userRole.ID;
 
             //process with inserting new user
             string selectQuery = "select u.user_name,u.user_surname,u.user_login,u.user_password,u.user_role_id " +
                                 "from user as u;";
-            string insert = "insert into user (user_name,user_surname,user_login,user_password,user_role_id)" +
+            string insert = "insert into user (user_name,user_surname,user_login,user_password,user_role_id) " +
                                     "values(@name,@surname,@login,@password,@role)";
 
             var connection = Database.GetConnection();
@@ -60,7 +63,10 @@ namespace ProjectManagerBackend.Services
 
             List<ViewUser> employeesToReturn = new List<ViewUser>();
             var roles = GetAllUserRoles();
-            int employeeRoleId = roles.FirstOrDefault(property => property.Name == "Employee").ID;
+            var employeeRole = roles.FirstOrDefault(property => property.Name == "Employee");
+            if (employeeRole == null)
+                throw new Exception("Apropriate role not found in database!");
+            int employeeRoleId = employeeRole.ID;
 
             var connection = Database.GetConnection();
             connection.Open();

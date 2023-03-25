@@ -184,7 +184,6 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to approve a task");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                //Task.ChangeTaskStatus(taskId, "finished");
                 _taskService.ChangeTaskStatus(taskId, "finished");
                 MessageBox.Show("Task has been approved.");
                 radioButtonWaitingForApproval.Checked = true;
@@ -199,7 +198,7 @@ namespace ProjectManager
 
         private void buttonDelete_Click(object sender, EventArgs e)
         {
-            var dialogResult = MessageBox.Show("Do you want to delete this task?","Warning!",MessageBoxButtons.YesNo);
+            var dialogResult = MessageBox.Show("Do you want to delete this task?", "Warning!", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
                 return;
             try
@@ -210,7 +209,6 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to delete a task");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                //Task.DeleteTask(taskId);
                 _taskService.DeleteTask(taskId);
                 MessageBox.Show("Task has been deleted.");
                 radioButtonDeleted.Checked = true;
@@ -232,7 +230,6 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to put a task on hold");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                //Task.ChangeTaskStatus(taskId, "on hold");
                 _taskService.ChangeTaskStatus(taskId, "on hold");
                 MessageBox.Show("Task has been put on hold.");
                 radioButtonOnHold.Checked = true;
@@ -254,7 +251,6 @@ namespace ProjectManager
                     throw new Exception("Only manager is allowed to reactivate a task.");
 
                 int taskId = Convert.ToInt32(dataGridViewTasks.SelectedRows[0].Cells[0].Value);
-                //Task.ChangeTaskStatus(taskId, "ongoing");
                 _taskService.ChangeTaskStatus(taskId, "ongoing");
                 MessageBox.Show("Task has been reactivated.");
                 radioButtonOngoing.Checked = true;

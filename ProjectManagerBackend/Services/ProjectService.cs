@@ -293,7 +293,7 @@ namespace ProjectManagerBackend.Services
             //loop to go through all tasks assigned to project
             for (int i = 0; i <= dataSet.Tables["tasks"].Rows.Count - 1; i++)
             {
-                //if task status is ongoing, waiting for approval or not started, change its status to on hold
+                //if task status is ongoing, waiting for approval or not started, change its status to not started
                 int taskStatusId = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_status_id"].ToString());
                 if (taskStatusId == taskOnHoldId)
                 {
@@ -338,7 +338,10 @@ namespace ProjectManagerBackend.Services
             var adapter = new MySqlDataAdapter(projectCommand);
 
             var projectStatuses = GetAllStatuses();
-            int projectOngoingId = projectStatuses.FirstOrDefault(property => property.Name == "In progress").Id;
+            var projectOngoing = projectStatuses.FirstOrDefault(property => property.Name == "In progress");
+            if (projectOngoing == null)
+                throw new Exception("No apropriate status found in database");
+            int projectOngoingId = projectOngoing.Id;
 
             var dataSet = new DataSet();
 
