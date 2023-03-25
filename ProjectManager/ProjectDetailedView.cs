@@ -35,7 +35,6 @@ namespace ProjectManager
             {
                 dataGridViewTasks.DataSource = null;
                 dataGridViewTasks.Rows.Clear();
-                //var tasks = Task.GetTasksForProject(_projectId);
                 var tasks = _taskService.GetTasksForProject(_projectId);
 
                 tasks = tasks.Where(property => property.TaskStatus == taskStatus).ToList();
