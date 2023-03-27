@@ -137,17 +137,19 @@ namespace ProjectManager
         {
             labelTaskCreationDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["CreationDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
             labelDeadlineDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["DeadlineDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
-            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString()))
+            string? taskFinishedDate = dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString();
+            if (string.IsNullOrEmpty(taskFinishedDate))
                 labelTaskFinishedDate.Text = "Task not finished yet";
             else
             {
-                labelTaskFinishedDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
+                labelTaskFinishedDate.Text = Convert.ToDateTime(taskFinishedDate).ToString("dd/MMMM/yyyy");
             }
             labelTaskPriority.Text = dataGridViewTasks.CurrentRow.Cells["TaskPriority"].Value.ToString();
-            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString()))
+            string? description = dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString();
+            if (string.IsNullOrEmpty(description))
                 textBoxTaskDescription.Text = "This task does not have any description.";
             else
-                textBoxTaskDescription.Text = dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString();
+                textBoxTaskDescription.Text = description;
 
         }
 

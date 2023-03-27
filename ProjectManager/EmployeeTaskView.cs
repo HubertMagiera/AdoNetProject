@@ -19,11 +19,11 @@ namespace ProjectManager
         {
             InitializeComponent();
             _taskService = new TaskService();
-            LoadUserTasks(radioButtonOngoing.Text);
+            loadUserTasks(radioButtonOngoing.Text);
             radioButtonOngoing.Checked = true;
         }
 
-        private void LoadUserTasks(string taskStatus)
+        private void loadUserTasks(string taskStatus)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace ProjectManager
             {
                 buttonSendForApproval.Enabled = false;
                 buttonStartWork.Enabled = true;
-                LoadUserTasks(radioButtonNotStarted.Text);
+                loadUserTasks(radioButtonNotStarted.Text);
             }
         }
 
@@ -65,7 +65,7 @@ namespace ProjectManager
             {
                 buttonSendForApproval.Enabled = true;
                 buttonStartWork.Enabled = false;
-                LoadUserTasks(radioButtonOngoing.Text);
+                loadUserTasks(radioButtonOngoing.Text);
             }
         }
 
@@ -75,7 +75,7 @@ namespace ProjectManager
             {
                 buttonSendForApproval.Enabled = false;
                 buttonStartWork.Enabled = true;
-                LoadUserTasks(radioButtonOnHold.Text);
+                loadUserTasks(radioButtonOnHold.Text);
             }
         }
 
@@ -85,7 +85,7 @@ namespace ProjectManager
             {
                 buttonSendForApproval.Enabled = false;
                 buttonStartWork.Enabled = false;
-                LoadUserTasks(radioButtonWaitingForApproval.Text);
+                loadUserTasks(radioButtonWaitingForApproval.Text);
             }
         }
 
@@ -95,7 +95,7 @@ namespace ProjectManager
             {
                 buttonSendForApproval.Enabled = false;
                 buttonStartWork.Enabled = false;
-                LoadUserTasks(radioButtonFinished.Text);
+                loadUserTasks(radioButtonFinished.Text);
             }
         }
 
@@ -105,7 +105,7 @@ namespace ProjectManager
             {
                 buttonSendForApproval.Enabled = false;
                 buttonStartWork.Enabled = false;
-                LoadUserTasks(radioButtonDeleted.Text);
+                loadUserTasks(radioButtonDeleted.Text);
             }
         }
 
@@ -113,17 +113,19 @@ namespace ProjectManager
         {
             labelTaskCreationDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["CreationDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
             labelDeadlineDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["DeadlineDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
-            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString()))
+            string? taskFinishedDate = dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString();
+            if (string.IsNullOrEmpty(taskFinishedDate))
                 labelTaskFinishedDate.Text = "Task not finished yet";
             else
             {
-                labelTaskFinishedDate.Text = Convert.ToDateTime(dataGridViewTasks.CurrentRow.Cells["FinishedDate"].Value.ToString()).ToString("dd/MMMM/yyyy");
+                labelTaskFinishedDate.Text = Convert.ToDateTime(taskFinishedDate).ToString("dd/MMMM/yyyy");
             }
             labelTaskPriority.Text = dataGridViewTasks.CurrentRow.Cells["TaskPriority"].Value.ToString();
-            if (string.IsNullOrEmpty(dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString()))
+            string? description = dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString();
+            if (string.IsNullOrEmpty(description))
                 textBoxTaskDescription.Text = "This task does not have any description.";
             else
-                textBoxTaskDescription.Text = dataGridViewTasks.CurrentRow.Cells["Description"].Value.ToString();
+                textBoxTaskDescription.Text = description;
         }
 
         private void buttonStartWork_Click(object sender, EventArgs e)
@@ -137,7 +139,7 @@ namespace ProjectManager
                 _taskService.ChangeTaskStatus(taskId, "Ongoing");
                 MessageBox.Show("Task status has been updated.");
                 radioButtonOngoing.Checked = true;
-                LoadUserTasks(radioButtonOngoing.Text);
+                loadUserTasks(radioButtonOngoing.Text);
             }
             catch (Exception ex)
             {
@@ -156,7 +158,7 @@ namespace ProjectManager
                 _taskService.ChangeTaskStatus(taskId, "Waiting for approval");
                 MessageBox.Show("Task has been sent for approval.");
                 radioButtonWaitingForApproval.Checked = true;
-                LoadUserTasks(radioButtonWaitingForApproval.Text);
+                loadUserTasks(radioButtonWaitingForApproval.Text);
             }
             catch (Exception ex)
             {

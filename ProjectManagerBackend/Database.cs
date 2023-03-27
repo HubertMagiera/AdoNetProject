@@ -35,10 +35,5 @@ namespace ProjectManagerBackend
             }
             
         }
-
-        public static void CloseConnection(MySqlConnection connection)
-        {
-            connection.Close();
-        }
     }
 }

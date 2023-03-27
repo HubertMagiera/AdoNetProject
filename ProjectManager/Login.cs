@@ -27,6 +27,8 @@ namespace ProjectManager
         {
             try
             {
+                if (string.IsNullOrEmpty(textBoxLogin.Text) || string.IsNullOrEmpty(textBoxPassword.Text))
+                    throw new Exception("Please provide both login and password.");
                 user = _userService.LoginUser(textBoxLogin.Text, textBoxPassword.Text);
 
                 if (user != null && user.Role.Name == "Manager")

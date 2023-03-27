@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ProjectManagerBackend.Services
 {
@@ -194,8 +195,6 @@ namespace ProjectManagerBackend.Services
                                     projectName);
                 tasksToReturn.Add(viewTask);
             }
-            if (tasksToReturn.Count == 0)
-                throw new Exception("No tasks for this project.");
             return tasksToReturn;
         }
 
@@ -286,6 +285,10 @@ namespace ProjectManagerBackend.Services
                 string name = reader.GetString(1);
 
                 priorities.Add(new TaskPriority(id, name));
+            }
+            if (priorities.Count == 0)
+            {
+                throw new Exception("No task priorities found in database");
             }
             connection.Close();
             return priorities;

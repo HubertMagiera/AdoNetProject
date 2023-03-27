@@ -21,13 +21,13 @@ namespace ProjectManager
         {
             InitializeComponent();
             _userService = new UserService();
-            comboBoxRole.Items.Clear();
             loadRoles();
         }
         private void loadRoles()
         {
             try
             {
+                comboBoxRole.Items.Clear();
                 var roles = _userService.GetAllUserRoles();
                 foreach (var role in roles)
                 {

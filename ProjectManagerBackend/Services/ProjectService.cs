@@ -61,7 +61,7 @@ namespace ProjectManagerBackend.Services
                 throw new Exception("Apropriate project status not found in database.");
             int statusId = statusNew.Id;
 
-            //assigning apropriate project type id based on user choose
+            //assigning apropriate project type id based on user choice
             var projectType = GetAllProjectTypes().FirstOrDefault(property => property.TypeName == projectToBeAdded.TypeName);
             if (projectType == null)
                 throw new Exception("Apropriate project type not found in database.");
@@ -185,7 +185,7 @@ namespace ProjectManagerBackend.Services
                 dataSet.RejectChanges();
                 throw new Exception("There were some errors while trying to move project on hold");
             }
-            //change projects status to on hold
+            //change project status to on hold
             adapterForProject.Update(dataSet, "project");
         }
 
@@ -293,7 +293,7 @@ namespace ProjectManagerBackend.Services
             //loop to go through all tasks assigned to project
             for (int i = 0; i <= dataSet.Tables["tasks"].Rows.Count - 1; i++)
             {
-                //if task status is ongoing, waiting for approval or not started, change its status to not started
+                //if task status is on hold, change its status to not started
                 int taskStatusId = Convert.ToInt32(dataSet.Tables["tasks"].Rows[i]["task_status_id"].ToString());
                 if (taskStatusId == taskOnHoldId)
                 {
@@ -306,7 +306,7 @@ namespace ProjectManagerBackend.Services
                         dataSet.RejectChanges();
                         throw new Exception("There were some errors while trying to reactivate task.");
                     }
-                    //change tasks status to on hold
+                    //change tasks status to not started
                     adapterForTasks.Update(dataSet, "tasks");
                 }
 
@@ -388,7 +388,7 @@ namespace ProjectManagerBackend.Services
 
             if (statuses.Count == 0)
             {
-                throw new Exception("No project types found in database");
+                throw new Exception("No project statuses found in database");
             }
             return statuses;
         }
@@ -403,21 +403,21 @@ namespace ProjectManagerBackend.Services
             var command = new MySqlCommand(query, connection);
             var reader = command.ExecuteReader();
 
-            List<ProjectType> roles = new List<ProjectType>();
+            List<ProjectType> types = new List<ProjectType>();
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
                 string name = reader.GetString(1);
 
-                roles.Add(new ProjectType(id, name));
+                types.Add(new ProjectType(id, name));
             }
             connection.Close();
 
-            if (roles.Count == 0)
+            if (types.Count == 0)
             {
                 throw new Exception("No project types found in database");
             }
-            return roles;
+            return types;
         }
     }
 }
